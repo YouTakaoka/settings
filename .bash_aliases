@@ -1,0 +1,7 @@
+alias ls='ls -FAh --color'
+alias du='du -h'
+alias rm='rm -I'
+alias shutdown='sudo shutdown -h now'
+alias tar='tar -k'
+alias fb='caja'
+alias suspend='sudo pm-suspend'
