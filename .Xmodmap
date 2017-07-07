@@ -3,7 +3,7 @@ remove shift = Shift_L
 remove control = Control_L
 remove mod1 = Alt_L
 
-! Zenkaku Hnkaku -> Ecs
+! Zenkaku Hankaku -> Esc
 keycode 49 = Escape
 ! Tab       -> Shift
 keycode 23 = Shift_L
@@ -11,12 +11,10 @@ keycode 23 = Shift_L
 keycode 66 = Control_L
 ! Shift     -> Alt
 keycode 50 = Alt_L
-! Ctrl      -> Tab
-keycode 37 = Tab
 ! Alt       -> Caps Lock
 keycode 64 = Caps_Lock
-! Muhenkan  -> Caps Lock 
-keycode 102 = Caps_Lock
+! Muhenkan  -> Tab 
+keycode 102 = Tab
 
 add lock = Caps_Lock
 add shift = Shift_L
