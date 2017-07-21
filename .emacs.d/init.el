@@ -165,7 +165,7 @@
 
 ;;;;;;;;;;;;;;;;;;;;;;;; sticky settings ;;;;;;;;;;;;;;;;;;;
 ;; (require 'sticky)
-;; (use-sticky-key ?\; sticky-alist:ja)    ; for japanese keyboards
+;; (use-sticky-key ";" sticky-alist:ja)    ; for japanese keyboards
 
 ;;;;;;;;;;;;;;;;;;;;;;;; key-bind settings ;;;;;;;;;;;;;;;;;
 ;; C-c x: Execute script
