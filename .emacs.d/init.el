@@ -49,7 +49,8 @@
 (menu-bar-mode -1)
 (tool-bar-mode -1)
 (scroll-bar-mode -1)
-
+;;; automatically insert closing parenthesis
+(electric-pair-mode 1)
 
 ;;;;;;;;;;;;;;;;;;;;;; paredit ;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (require 'paredit)
