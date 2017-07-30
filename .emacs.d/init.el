@@ -85,7 +85,7 @@
 ;; (prefer-coding-system 'utf-8)
 
 ;; ファイルの文字コードだけ別に指定したい場合に設定
- (setq-default buffer-file-coding-system 'utf-8-with-signature) ; BOM 付き UTF-8
+ (setq-default buffer-file-coding-system 'utf-8-unix) ; BOM 付き UTF-8
 
 ;;;;;;;;;;;;;;;;; Set line numbers ;;;;;;;;;;;;;;;
 (require 'linum)            ;\左に行番号表示
