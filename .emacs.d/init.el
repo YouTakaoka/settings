@@ -1,12 +1,27 @@
 
 ;;; Load path setting
 (setq load-path (cons "~/.emacs.d/elisp" load-path))
+(setq load-path (cons "~/.emacs.d/.cask" load-path))
+
+;;; el-get settings
+;; load-path で ~/.emacs.d とか書かなくてよくなる
+(when load-file-name
+  (setq user-emacs-directory (file-name-directory load-file-name)))
+
+;; el-get
+(add-to-list 'load-path (locate-user-emacs-file "el-get"))
+(require 'el-get)
+;; el-getでダウンロードしたパッケージは ~/.emacs.d/ に入るようにする
+(setq el-get-dir (locate-user-emacs-file ""))
 
 ;;; パッケージの設定
-(require 'package)
-(add-to-list 'package-archives '("marmalade" . "http://marmalade-repo.org/packages/"))
-(add-to-list 'package-archives '("melpa" . "http://melpa.milkbox.net/packages/") t)
-(package-initialize)
+;; (require 'package)
+;; (add-to-list 'package-archives '("marmalade" . "http://marmalade-repo.org/packages/"))
+;; (add-to-list 'package-archives '("melpa" . "http://melpa.milkbox.net/packages/") t)
+;; (package-initialize)
+;; (require 'cask)
+;; (cask-initialize)
+
 ;;; 右から左に読む言語に対応させないことで描画高速化
 (setq-default bidi-display-reordering nil)
 ;;; splash screenを無効にする
@@ -16,12 +31,12 @@
 ;; C-u C-SPC C-SPC …でどんどん過去のマークを遡る
 (setq set-mark-command-repeat-pop t)
 ;;; 複数のディレクトリで同じファイル名のファイルを開いたときのバッファ名を調整する
-(require 'uniquify)
+;; (require 'uniquify)
 ;; filename<dir> 形式のバッファ名にする
 (setq uniquify-buffer-name-style 'post-forward-angle-brackets)
 (setq uniquify-ignore-buffers-re "[^*]+")
 ;;; ファイルを開いた位置を保存する
-(require 'saveplace)
+;; (require 'saveplace)
 (setq-default save-place t)
 (setq save-place-file (concat user-emacs-directory "places"))
 ;;; 釣合う括弧をハイライトする
@@ -47,13 +62,13 @@
 (setq history-length 1000)
 ;;; メニューバーとツールバーとスクロールバーを消す
 (menu-bar-mode -1)
-(tool-bar-mode -1)
-(scroll-bar-mode -1)
+;; (tool-bar-mode -1)
+;; (scroll-bar-mode -1)
 ;;; automatically insert closing parenthesis
 (electric-pair-mode 1)
 
 ;;;;;;;;;;;;;;;;;;;;;; paredit ;;;;;;;;;;;;;;;;;;;;;;;;;;;
-(require 'paredit)
+;; (require 'paredit)
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -88,98 +103,9 @@
  (setq-default buffer-file-coding-system 'utf-8-unix) ; BOM 付き UTF-8
 
 ;;;;;;;;;;;;;;;;; Set line numbers ;;;;;;;;;;;;;;;
-(require 'linum)            ;\左に行番号表示
+;; (require 'linum)            ;\左に行番号表示
 (global-linum-mode)
 
-;;;;;;;;;;;;;;;;;; SKK settings ;;;;;;;;;;;;;;;;;
-;; make what-whereでSKK modulesで表示されるディレクトリを指定
-(add-to-list 'load-path "/usr/local/share/emacs/24.3/site-lisp/skk")
-;; M-x skk-tutorialでNo file found as 〜とエラーが出たときにskk-tut-fileを設定
-;; make what-whereでSKK tutorialsで表示されるディレクトリ上のSKK.tutを指定
-(setq skk-tut-file "/usr/share/skk/SKK.tut")
-(require 'skk)
-(global-set-key "\C-x\C-j" 'skk-mode)
-
-(setq skk-server-prog "/usr/local/bin/google-ime-skk") ; google-ime-skkの場所
-(setq skk-server-inhibit-startup-server nil) ; 辞書サーバが起動していなかったときに Emacs からプロセスを立ち上げる 
-(setq skk-server-host "localhost") ; サーバー機能を利用
-(setq skk-server-portnum 55100)     ; ポートはgoogle-ime-skk
-(setq skk-share-private-jisyo t)   ; 複数 skk 辞書を共有
-
-
-;;;;;;;;;;;;;; Font settings ;;;;;;;;;;;;;;;;;;;;;
-(cond (window-system
-       (set-default-font "Monospace")
-       (set-fontset-font (frame-parameter nil 'font)
-                         'japanese-jisx0208
-                         '("Takaoゴシック" . "unicode-bmp")
-                         )))
-
-
-;;;;;;;;;;;;;; auto-install settings ;;;;;;;;;;;;
-(setq auto-install-use-wget t)
-;; (install-elisp-from-emacswiki "auto-install.el")
-(add-to-list 'load-path "~/.emacs.d/auto-install")
-(require 'auto-install)
-;; Add Emacs Lisp installed by auto-install to the load path.
-;; Default is ~/.emacs.d/auto-install/
-(add-to-list 'load-path auto-install-directory)
-;; Add the page name of EmacsWiki to the auto-complition candidates.
-(auto-install-update-emacswiki-package-name t)
-;; Set comptibility mode of install-elisp.el
-(auto-install-compatibility-setup)
-;; Integrate the buffers associated with ediff into single frame.
-(setq ediff-window-setup-function 'ediff-setup-windows-plain)
-
-;;;;;;;;;;;;;;;;;;;;;;;; flycheck ;;;;;;;;;;;;;;;;;;;;;;;;;;;
-(add-hook 'after-init-hook #'global-flycheck-mode)
-
-;;;;;;;;;;;;;;;;;;;;;;;; flymake ;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-(require 'flymake)
-
-;; Java
-(add-hook 'java-mode-hook 'flymake-mode-on)
-
-(defun my-java-flymake-init ()
-  (list "javac" (list (flymake-init-create-temp-buffer-copy
-                       'flymake-create-temp-with-folder-structure))))
-
-(add-to-list 'flymake-allowed-file-name-masks '("\\.java$" my-java-flymake-init flym))
-
-
-;;;;;;;;;;;;;;;;;;;;;;;; mode ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; ruby-mode
-(autoload 'ruby-mode "ruby-mode"
-  "Mode for editing ruby source files" t)
-(add-to-list 'auto-mode-alist '("\\.rb$" . ruby-mode))
-(add-to-list 'auto-mode-alist '("Capfile$" . ruby-mode))
-(add-to-list 'auto-mode-alist '("Gemfile$" . ruby-mode))
-  (add-to-list 'auto-mode-alist '("[Rr]akefile$" . ruby-mode))
-
-;; python-mode
-(autoload 'python-mode "python-mode" "Python editing mode." t)
-(custom-set-variables
- '(py-indent-offset 4)
- )
-(add-hook 'python-mode-hook
-          '(lambda()
-             (setq tab-width 4)
-             (setq indent-tabs-mode nil)
-             )
-          )
-
-;;;;;;;;;;;;;;;;;;;;;;;; backup ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;set backup directory to the "backup" directory
-(setq backup-directory-alist
-  (cons (cons ".*" (expand-file-name "~/.emacs.d/backup"))
-        backup-directory-alist))
-;;set auto-save directory to the "backup" directory
-(setq auto-save-file-name-transforms
-  `((".*", (expand-file-name "~/.emacs.d/backup/") t)))
-
-;;;;;;;;;;;;;;;;;;;;;;;; sticky settings ;;;;;;;;;;;;;;;;;;;
-;; (require 'sticky)
-;; (use-sticky-key ";" sticky-alist:ja)    ; for japanese keyboards
 
 ;;;;;;;;;;;;;;;;;;;;;;;; key-bind settings ;;;;;;;;;;;;;;;;;
 ;; C-c x: Execute script
@@ -205,20 +131,9 @@
 (fset 'quick-copy-line
    "\C-@\C-e\C-[w\C-f")
 
+;;;;;;;;;;;;;;;;;;;;;;; packages ;;;;;;;;;;;;;;;;;;;;;;;
+;; auto-complage
+(el-get-bundle auto-complete)
 
-;;;;;;;;;;;;;;;;;;;;;;; point-undo ;;;;;;;;;;;;;;;;;;;
-(require 'point-undo)
-(define-key global-map (kbd "<f7>") 'point-undo)
-(define-key global-map (kbd "S-<f7>") 'point-redo)
-
-;;;;;;;;;;;;;;;;;;;;;;;; helm settings ;;;;;;;;;;;;;;;
-(require 'helm-config)
-(helm-mode 1)
-
-;;;;;;;;;;;;;;;;;;;;;;;; auto-complete settings ;;;;;;;;;;;;;;;
-(require 'auto-complete-config)
-(global-auto-complete-mode 1)
-
-(provide 'init)
-;;; init.el ends here
-
+;; ddskk
+(el-get-bundle ddskk)

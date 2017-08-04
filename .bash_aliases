@@ -1,6 +1,5 @@
-alias ls='ls -FAh --color'
+alias ls='ls -FAh'
 alias du='du -h'
-alias rm='rm -I'
 alias shutdown='sudo shutdown -h now'
 alias tar='tar -k'
 alias fb='nautilus'

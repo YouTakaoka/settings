@@ -129,5 +129,8 @@ export LANG=C.UTF-8
 export LC_ALL=C.UTF-8
 export LANGUAGE=C.UTF-8
 
-#Path settings.
+# Path settings.
 export PATH="$PATH:~/bin"
+
+# enable rm,mv,cp to recognize . files
+shopt -s dotglob
