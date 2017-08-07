@@ -1,18 +1,18 @@
 
 ;;; Load path setting
 (setq load-path (cons "~/.emacs.d/elisp" load-path))
-(setq load-path (cons "~/.emacs.d/.cask" load-path))
+;; (setq load-path (cons "~/.emacs.d/.cask" load-path))
 
 ;;; el-get settings
 ;; load-path で ~/.emacs.d とか書かなくてよくなる
-(when load-file-name
-  (setq user-emacs-directory (file-name-directory load-file-name)))
+;; (when load-file-name
+;; (setq user-emacs-directory (file-name-directory load-file-name)))
 
 ;; el-get
-(add-to-list 'load-path (locate-user-emacs-file "el-get"))
+(add-to-list 'load-path (locate-user-emacs-file "~/.emacs.d/el-get"))
 (require 'el-get)
 ;; el-getでダウンロードしたパッケージは ~/.emacs.d/ に入るようにする
-(setq el-get-dir (locate-user-emacs-file ""))
+(setq el-get-dir (locate-user-emacs-file "~/.emacs.d/elisp"))
 
 ;;; パッケージの設定
 ;; (require 'package)
