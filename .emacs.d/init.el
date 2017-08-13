@@ -4,15 +4,20 @@
 (setq load-path (cons "~/.emacs.d/.cask" load-path))
 
 ;;; el-get settings
-;; load-path で ~/.emacs.d とか書かなくてよくなる
-;; (when load-file-name
-;;  (setq user-emacs-directory (file-name-directory load-file-name;; )))
+(add-to-list 'load-path "~/.emacs.d/el-get/el-get")
+
+(unless (require 'el-get nil t)
+  (url-retrieve
+   "https://raw.github.com/dimitri/el-get/master/el-get-install.el"
+   (lambda (s)
+     (end-of-buffer)
+     (eval-print-last-sexp))))
 
 ;; el-get
-(add-to-list 'load-path (locate-user-emacs-file "~/.emacs.d/el-get"))
-(require 'el-get)
+;; (add-to-list 'load-path (locate-user-emacs-file "~/.emacs.d/el-get"))
+;; (require 'el-get)
 ;; el-getでダウンロードしたパッケージは ~/.emacs.d/ に入るようにする
-(setq el-get-dir (locate-user-emacs-file "~/.emacs.d/elisp"))
+;; (setq el-get-dir (locate-user-emacs-file "~/.emacs.d/elisp"))
 
 ;;; パッケージの設定
 ;; (require 'package)
@@ -143,3 +148,9 @@
 
 ;; flycheck
 (el-get-bundle flycheck)
+
+;;;;;;;;;;;;;;;;;;;;; flycheck settings ;;;;;;;;;;;;;;
+(require 'flycheck)
+
+;; C++ mode
+(add-hook 'c-mode-common-hook 'flycheck-mode)
