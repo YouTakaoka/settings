@@ -133,3 +133,9 @@
 
 ;; ddskk
 (el-get-bundle ddskk)
+
+;; flycheck
+(el-get-bundle flycheck)
+
+;; helm
+(el-get-bundle helm)
