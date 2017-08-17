@@ -3,25 +3,18 @@
 (setq load-path (cons "~/.emacs.d/elisp" load-path))
 ;; (setq load-path (cons "~/.emacs.d/.cask" load-path))
 
-;;; el-get settings
-;; load-path で ~/.emacs.d とか書かなくてよくなる
-;; (when load-file-name
-;; (setq user-emacs-directory (file-name-directory load-file-name)))
-
 ;; el-get
 (add-to-list 'load-path (locate-user-emacs-file "~/.emacs.d/el-get"))
 (require 'el-get)
 ;; el-getでダウンロードしたパッケージは ~/.emacs.d/ に入るようにする
 (setq el-get-dir (locate-user-emacs-file "~/.emacs.d/elisp"))
 
-;;; パッケージの設定
-;; (require 'package)
-;; (add-to-list 'package-archives '("marmalade" . "http://marmalade-repo.org/packages/"))
-;; (add-to-list 'package-archives '("melpa" . "http://melpa.milkbox.net/packages/") t)
-;; (package-initialize)
-;; (require 'cask)
-;; (cask-initialize)
-
+;;; Save backup and auto-save files into ~/.emacs.d/backup
+(setq backup-directory-alist
+  (cons (cons ".*" (expand-file-name "~/.emacs.d/backup"))
+        backup-directory-alist))
+(setq auto-save-file-name-transforms
+  `((".*", (expand-file-name "~/.emacs.d/backup/") t)))
 ;;; 右から左に読む言語に対応させないことで描画高速化
 (setq-default bidi-display-reordering nil)
 ;;; splash screenを無効にする
@@ -66,6 +59,9 @@
 ;; (scroll-bar-mode -1)
 ;;; automatically insert closing parenthesis
 (electric-pair-mode 1)
+;; Command key acts as Meta key
+;; (when (eq system-type 'darwin)
+;;   (setq ns-command-modifier (quote meta)))
 
 ;;;;;;;;;;;;;;;;;;;;;; paredit ;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; (require 'paredit)
