@@ -149,12 +149,8 @@
 ;; flycheck
 (el-get-bundle flycheck)
 
-;; flycheck-java
-(el-get-bundle flycheck-java)
-
 ;;;;;;;;;;;;;;;;;;;;; flycheck settings ;;;;;;;;;;;;;;
 (require 'flycheck)
-(require 'flycheck-java)
 
 ;; C++ mode
 (add-hook 'c-mode-common-hook 'flycheck-mode)
