@@ -149,8 +149,12 @@
 ;; flycheck
 (el-get-bundle flycheck)
 
+;; eclim
+(el-get-bundle eclim)
+
 ;;;;;;;;;;;;;;;;;;;;; flycheck settings ;;;;;;;;;;;;;;
 (require 'flycheck)
+; (require 'flycheck-java)
 
 ;; C++ mode
 (add-hook 'c-mode-common-hook 'flycheck-mode)
