@@ -4,7 +4,7 @@
 (setq load-path (cons "~/.emacs.d/.cask" load-path))
 
 ;;; el-get settings
-(add-to-list 'load-path "~/.emacs.d/el-get/el-get")
+(add-to-list 'load-path "~/.emacs.d/el-get")
 
 (unless (require 'el-get nil t)
   (url-retrieve
