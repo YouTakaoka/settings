@@ -150,7 +150,13 @@
 (el-get-bundle flycheck)
 
 ;; eclim
-(el-get-bundle eclim)
+;; (el-get-bundle eclim)
+
+;; jdee
+(el-get-bundle jdee)
+
+;; memoize
+(el-get-bundle memoize)
 
 ;;;;;;;;;;;;;;;;;;;;; flycheck settings ;;;;;;;;;;;;;;
 (require 'flycheck)
@@ -158,3 +164,8 @@
 
 ;; C++ mode
 (add-hook 'c-mode-common-hook 'flycheck-mode)
+
+;;;;;;;;;;;;;;;;;;;;; JDEE server ;;;;;;;;;;;;;;;;
+(custom-set-variables
+  '(jdee-server-dir "~/myjars")
+ )
