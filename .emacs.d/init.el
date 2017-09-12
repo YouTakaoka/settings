@@ -1,12 +1,19 @@
 
 ;;; Load path setting
+
+;; Added by Package.el.  This must come before configurations of
+;; installed packages.  Don't delete this line.  If you don't want it,
+;; just comment it out by adding a semicolon to the start of the line.
+;; You may delete these explanatory comments.
+(package-initialize)
+
 (setq load-path (cons "~/.emacs.d/elisp" load-path))
 ;; (setq load-path (cons "~/.emacs.d/.cask" load-path))
 
 ;; el-get
 (add-to-list 'load-path (locate-user-emacs-file "~/.emacs.d/el-get"))
 (require 'el-get)
-;; el-getでダウンロードしたパッケージは ~/.emacs.d/ に入るようにする
+;; el-getでダウンロードしたパッケージは ~/.emacs.d/elisp に入るようにする
 (setq el-get-dir (locate-user-emacs-file "~/.emacs.d/elisp"))
 
 ;;; Save backup and auto-save files into ~/.emacs.d/backup
@@ -139,3 +146,22 @@
 
 ;; helm
 (el-get-bundle helm)
+
+;; jdee
+(el-get-bundle jdee)
+
+;; memoize
+(require 'memoize)
+;; (el-get-bundle memoize)
+
+;;;;;;;;;;;;;;;;;;;;;;; CEDET ;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; (load-file "~/.emacs.d/site-lisp/cedet-1.1/common/cedet.el")
+;; (global-ede-mode 1)                      ; Enable the Project management system
+;; (semantic-load-enable-code-helpers) ; Enable prototype help and smart completion 
+;; (global-srecode-minor-mode 1)            ; Enable template insertion menu
+
+;;;;;;;;;;;;;;;;;;;;;;; JDEE ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+(custom-set-variables
+ '(jdee-server-dir "~/.emacs.d/jdee-server")
+ )
+
