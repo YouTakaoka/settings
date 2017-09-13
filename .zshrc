@@ -15,5 +15,4 @@ export "PATH=$HOME/bin:$HOME/.local/bin:$PATH"
 export JAVA_HOME=/Library/Java/JavaVirtualMachines/jdk1.8.0_144.jdk/Contents/Home
 export ANT_HOME=$HOME/Ant
 export ECLIPSE_HOME=/Applications/Eclipse.app/Contents/Eclipse/
-export PATH=$PATH:$ANT_HOME:$ECLIPSE_HOME
-
+export PATH=$PATH:$ANT_HOME:$ECLIPSE_HOME:$HOME/maven/bin
