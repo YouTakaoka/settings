@@ -27,6 +27,12 @@
 ;; (require 'cask)
 ;; (cask-initialize)
 
+;;; Save backup and auto-save files into ~/.emacs.d/backup
+(setq backup-directory-alist
+      (cons (cons ".*" (expand-file-name "~/.emacs.d/backup"))
+            backup-directory-alist))
+(setq auto-save-file-name-transforms
+        `((".*", (expand-file-name "~/.emacs.d/backup/") t)))
 ;;; 右から左に読む言語に対応させないことで描画高速化
 (setq-default bidi-display-reordering nil)
 ;;; splash screenを無効にする
