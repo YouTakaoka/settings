@@ -5,6 +5,10 @@ if [ ~/.aliases ]; then
     source ~/.aliases
 fi
 
+# On the purpose of supressing following error:
+# git: Gtk-WARNING cannot open display
+unset SSH_ASKPASS
+
 # set PATH so it includes user's private bin directories
 PATH="$HOME/bin:$HOME/.local/bin:$PATH"
 
