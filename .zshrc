@@ -14,7 +14,7 @@ PATH="$HOME/bin:$HOME/.local/bin:$PATH"
 
 # Ant settings
 export ANT_HOME=/usr/local/ant
-export JAVA_HOME=/usr/lib/jvm/java-8-openjdk-amd64
+export JAVA_HOME=/usr/lib/jvm/java-1.8.0
 export PATH=${PATH}:${ANT_HOME}/bin
 
 #THIS MUST BE AT THE END OF THE FILE FOR SDKMAN TO WORK!!!
