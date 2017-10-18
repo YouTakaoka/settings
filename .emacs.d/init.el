@@ -164,6 +164,9 @@
 ;; memoize
 (el-get-bundle memoize)
 
+;; php-mode
+(el-get-bundle php-mode)
+
 ;;;;;;;;;;;;;;;;;;;;; flycheck settings ;;;;;;;;;;;;;;
 (require 'flycheck)
 ; (require 'flycheck-java)
