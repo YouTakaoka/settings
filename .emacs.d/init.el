@@ -143,7 +143,7 @@
    "\C-@\C-e\C-[w\C-f")
 
 ;;;;;;;;;;;;;;;;;;;;;;; packages ;;;;;;;;;;;;;;;;;;;;;;;
-;; auto-complage
+;; auto-complete
 (el-get-bundle auto-complete)
 
 ;; ddskk
@@ -166,6 +166,9 @@
 
 ;; php-mode
 (el-get-bundle php-mode)
+
+;; quickrun
+(el-get-bundle quickrun)
 
 ;;;;;;;;;;;;;;;;;;;;; flycheck settings ;;;;;;;;;;;;;;
 (require 'flycheck)
