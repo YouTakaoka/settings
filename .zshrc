@@ -18,10 +18,11 @@ unset SSH_ASKPASS
 # set PATH so it includes user's private bin directories
 PATH="$HOME/bin:$HOME/.local/bin:$PATH"
 
-# Ant settings
+# Java settings
 export ANT_HOME=/usr/local/ant
+export MAVEN_HOME=/usr/local/apache-maven-3.5.2
 export JAVA_HOME=/usr/lib/jvm/java-8-openjdk-amd64/jre
-export PATH=${PATH}:${ANT_HOME}/bin
+export PATH=${PATH}:${ANT_HOME}/bin:${MAVEN_HOME}/bin
 
 #THIS MUST BE AT THE END OF THE FILE FOR SDKMAN TO WORK!!!
 export SDKMAN_DIR="/home/yu/.sdkman"
