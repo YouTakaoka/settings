@@ -170,6 +170,13 @@
 ;; quickrun
 (el-get-bundle quickrun)
 
+;;;;;;;;;;;;;;;;;;;; SKK settings ;;;;;;;;;;;;;;;;;;
+(setq skk-server-prog "/usr/local/bin/google-ime-skk") ; google-ime-skkの場所
+(setq skk-server-inhibit-startup-server nil) ; 辞書サーバが起動していなかったときに Emacs からプロセスを立ち上げる
+(setq skk-server-host "localhost") ; サーバー機能を利用
+(setq skk-server-portnum 55100)     ; ポートはgoogle-ime-skk
+(setq skk-share-private-jisyo t)   ; 複数 skk 辞書を共有
+
 ;;;;;;;;;;;;;;;;;;;;; flycheck settings ;;;;;;;;;;;;;;
 (require 'flycheck)
 ; (require 'flycheck-java)
@@ -179,5 +186,5 @@
 
 ;;;;;;;;;;;;;;;;;;;;; JDEE server ;;;;;;;;;;;;;;;;
 (custom-set-variables
-  '(jdee-server-dir "~/myjars")
+  '(jdee-server-dir "~/myJars")
  )
