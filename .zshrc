@@ -16,7 +16,11 @@ export LANG=en_US.utf8
 unset SSH_ASKPASS
 
 # set PATH so it includes user's private bin directories
-PATH="$HOME/bin:$HOME/.local/bin:$PATH"
+export PATH="$HOME/bin:$HOME/.local/bin:$PATH"
+
+# pyenv settings
+export PYENV_ROOT="$HOME/.pyenv"
+export PATH="$PYENV_ROOT/bin:$PATH"
 
 # Java settings
 export ANT_HOME=/usr/local/ant
@@ -27,3 +31,9 @@ export PATH=${PATH}:${ANT_HOME}/bin:${MAVEN_HOME}/bin
 #THIS MUST BE AT THE END OF THE FILE FOR SDKMAN TO WORK!!!
 export SDKMAN_DIR="/home/yu/.sdkman"
 [[ -s "/home/yu/.sdkman/bin/sdkman-init.sh" ]] && source "/home/yu/.sdkman/bin/sdkman-init.sh"
+
+# pyenv setting
+if command -v pyenv 1>/dev/null 2>&1; then
+	  eval "$(pyenv init -)"
+fi
+
