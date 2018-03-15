@@ -5,6 +5,9 @@ if [ ~/.aliases ]; then
     source ~/.aliases
 fi
 
+# PATH settings
+export LD_LIBRARY_PATH="$LD_LIBRARY_PATH:/usr/local/lib:/usr/lib64"
+
 # Keyboard setting
 # xmodmap ~/.Xmodmap
 
