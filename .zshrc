@@ -8,8 +8,11 @@ fi
 # PATH settings
 export LD_LIBRARY_PATH="$LD_LIBRARY_PATH:/usr/local/lib:/usr/lib64"
 
-# Keyboard setting
+# Keyboard setting(GUI)
 # xmodmap ~/.Xmodmap
+
+# Keyboard setting (Console)
+loadkeys /usr/share/keymaps/mykeymap.map
 
 # Locale setting
 export LANG=en_US.utf8
