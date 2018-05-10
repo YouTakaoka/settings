@@ -27,6 +27,8 @@
 ;; (require 'cask)
 ;; (cask-initialize)
 
+;;; Force menu bar to be one line
+(menu-bar-mode -1)
 ;;; Save backup and auto-save files into ~/.emacs.d/backup
 (setq backup-directory-alist
       (cons (cons ".*" (expand-file-name "~/.emacs.d/backup"))
