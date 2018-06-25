@@ -1,0 +1,184 @@
+package manager;
+import core.QandAClass;
+import core.SpeechDataClass;
+import core.StateClass;
+import generator.QuestionGenerator;
+import output.UnityOutput;
+
+public class DialogManager extends Thread{
+	private boolean isSpeak = false;                             // ユーザが発話中か
+	private boolean isSilent = false;                            // ユーザが沈黙中か
+	private boolean isPlay = false;                              // アウトプットが動作中か
+	private boolean isNod = false;                               // 相槌の判定結果
+	private long waitTime = 3000;                                  // 質問後の待ち時間
+	private long responseTime = 2000;                              // 相槌の間隔
+	private long preTime = System.currentTimeMillis();             // 現在の時刻
+	private final long startTime = System.currentTimeMillis();    // 対話開始時刻
+	private final long forcedTerminationTime = 1800000;           // 経過時間によって強制終了する
+
+
+	public void run() {
+		try{
+
+			UnityOutput unity = new UnityOutput();
+			unity.start();
+
+			QuestionGenerator g = new QuestionGenerator();
+			g.start();
+
+			// 各モジュールの起動を待つ
+			Thread.sleep(4000);
+			System.out.println("対話開始");
+
+
+			// 開始の挨拶
+			StateClass.isTalk = true;
+			StateClass.questionNum = 2;
+			StateClass.QandA = new QandAClass(g.getQuestion());  //開始のあいさつをセット。
+			System.out.println(StateClass.QandA.getQuestion().getSentence());
+			unity.speak();
+			waitAction();
+			preTime = System.currentTimeMillis();
+
+
+			// 1発話以降の対話制御、ループ
+			while (true) {
+
+				// 現在のStateの状況を反映
+				isSpeak = StateClass.isSpeak;
+				isPlay = StateClass.isPlay;
+				isNod = StateClass.isNod;
+
+				// ユーザ発話
+				if (isSpeak && isSilent) {
+					//エージェントの質問終了からユーザの発話開始までの時間をQandAに保存。
+					StateClass.QandA.setPause((System.currentTimeMillis() - preTime) / 1000.0);
+					preTime = System.currentTimeMillis();
+					isSilent  = false;
+				}
+				// ユーザ沈黙(ユーザ発話が終了してからの時間を計算したいため、ここで現在の時刻を記録。汚くてすみません。)
+				if (!isSpeak && !isSilent) {
+					preTime = System.currentTimeMillis();
+					isSilent = true;
+				}
+				// エージェント相槌
+				if (isSpeak
+						&& !isPlay
+						&& isNod
+						&& System.currentTimeMillis() - preTime > responseTime) {
+
+					unity.nod();
+					waitAction();
+					preTime = System.currentTimeMillis();
+				}
+				// 評価値算出と、次のエージェント質問
+				if (!isSpeak
+						&& isSilent
+						&& !isPlay
+						&& !isNod
+						&& System.currentTimeMillis() - preTime > waitTime) {
+
+					// 1対話が終了したのでフラッグを下げる。
+					System.out.println("1対話終了");
+					StateClass.isTalk = false;
+					// 会話活動評価値の算出が終了するまで待機。
+					waitCalculation();
+
+					StateClass.QandAList.add(StateClass.QandA);  //現在おこなっていた対話をリストに保存。
+					StateClass.QandA = null;
+
+					if(StateClass.questionNum == 2 || !StateClass.TQFlag){
+						StateClass.questionNum++;
+					}
+
+					// 全ての質問を終えるか、全体の対話時間が3分を超えたら終了
+					if (StateClass.questionNum-3 >= g.getSize() || preTime - startTime >= forcedTerminationTime ){
+						break;
+					}
+
+					//次の質問をセット。
+					System.out.println("1対話開始");
+					StateClass.QandA = new QandAClass(g.getQuestion());
+					System.out.println(StateClass.QandA.getQuestion().getSentence());
+					unity.speak();
+					waitAction();
+					preTime = System.currentTimeMillis();
+				}
+
+				Thread.sleep(50);
+			}
+
+			// 最後の挨拶
+			StateClass.questionNum = 1;
+			StateClass.QandA = new QandAClass(g.getQuestion());  //最後の挨拶をセット。
+			System.out.println(StateClass.QandA.getQuestion().getSentence());
+			unity.speak();
+			waitAction();
+			unity.end();
+
+			System.out.println("対話終了");
+
+
+			//確認のため、すべてのQandAリストを表示。
+			for(QandAClass QandA : StateClass.QandAList){
+				System.out.println("*********************************************************************************");
+				System.out.println("質問ID：" + QandA.getQuestion().getUtteranceID());
+				System.out.println("質問文：" + QandA.getQuestion().getSentence());
+				System.out.println("トピック：" + QandA.getQuestion().getTopic());
+				System.out.println("話題遷移：" + StateClass.TQFlag);
+				System.out.println("エージェント質問開始時刻：" + QandA.getQST());
+				System.out.println("エージェント質問終了時刻：" + QandA.getQET());
+				System.out.println();
+
+				for(SpeechDataClass speech : QandA.getSpeechList()){
+					System.out.println("応答文：");
+					System.out.println("ファイル名：" + speech.getFileName());
+					System.out.println("ユーザ発話長：" + speech.getSpeechLength());
+					System.out.println();
+				}
+
+				System.out.println();
+				System.out.println("ユーザ応答時間：" + QandA.getPause());
+				System.out.println("ユーザ総発話長：" + QandA.getTotalLength());
+				System.out.println("ユーザ平均ピッチ：" + QandA.getPitch());
+				System.out.println("ユーザピッチレンジ：" + QandA.getPitchRange());
+				System.out.println("ユーザ頭部x座標移動量：" + QandA.getHeadData().getX());
+				System.out.println("ユーザ頭部y座標移動量：" + QandA.getHeadData().getY());
+				System.out.println("ユーザ頭部z座標移動量：" + QandA.getHeadData().getZ());
+				System.out.println("ユーザ頭部総移動量：" + QandA.getHeadData().getHeadMove());
+				System.out.println();
+				System.out.println("会話活動評価値：" + QandA.getValue());
+				System.out.println();
+				System.out.println("*********************************************************************************");
+			}
+
+			// プログラムの終了
+			StateClass.isRun = false;
+
+		}catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
+
+	public void waitAction(){
+		try{
+			while(StateClass.isPlay){
+				Thread.sleep(50);
+				continue;
+			}
+		}catch(Exception e){
+			e.printStackTrace();
+		}
+	}
+
+	public void waitCalculation(){
+		try{
+			while(!StateClass.isTalk){
+				Thread.sleep(50);
+				continue;
+			}
+		}catch(Exception e){
+			e.printStackTrace();
+		}
+	}
+}

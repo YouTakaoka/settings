@@ -1,0 +1,19 @@
+Simple example of build.xml.
+----------------------------------
+
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<project name="ivfwriter" default="run">
+
+  <property name="src" location="."/>
+  <property name="build" location="."/>
+
+  <target name="compile">
+    <javac srcdir="${src}" destdir="${build}" debug="true" debuglevel="lines,vars,source"/>
+  </target>
+
+  <target name="run">
+    <java classname="ivfwriter.Main" classpath="${build}"/>
+  </target>
+
+</project>

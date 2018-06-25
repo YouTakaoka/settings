@@ -1,0 +1,10 @@
+#include<stdio.h>
+
+int main(){
+  for(int i=0; i<5; i++){
+    printf("こんにちは。少しお話しましょう。\n");
+    sleep(5);
+  }
+  printf("#mes: End\n");
+  return 0;
+}

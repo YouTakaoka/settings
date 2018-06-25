@@ -1,0 +1,54 @@
+package input;
+
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+
+import core.SourceClass;
+
+public class PythonInput extends Thread{
+	private ProcessBuilder processBuilder;
+	private Process process;
+	private BufferedReader reader;
+
+	public PythonInput(){
+		//pythonモジュールが出力するデータを読み込むプロセスを生成。
+		try {
+			this.processBuilder = new ProcessBuilder("python", ".\\Adintool.py");
+			this.process = processBuilder.start();
+			this.reader = new BufferedReader(new InputStreamReader(process.getInputStream()));
+
+			System.out.println("PythonInput起動");
+
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	}
+
+	public void run(){
+		try{
+			String line;
+			while(true){
+				line = reader.readLine();
+
+				if(line != null){
+
+					String[] data = line.split(" ");
+
+
+					SourceClass.pitch = Integer.parseInt(data[0]);
+					SourceClass.intensity = Double.parseDouble(data[1]);
+					SourceClass.message = data[2];
+					SourceClass.fileName = data[3];
+
+
+					//System.out.println(data[0] + " " + data[1] + " " + data[2] + " " + data[3]);
+					//System.out.println(SourceClass.pitch + " " + SourceClass.intensity + " " + SourceClass.message + " " + SourceClass.fileName);
+				}
+
+			}
+		}catch(Exception e){
+			e.printStackTrace();
+		}
+	}
+}

@@ -1,0 +1,6 @@
+#!/bin/bash
+
+echo "v7sabktpa7"
+file=$1
+rsync ./ a-match@a-match.sakura.ne.jp:/home/a-match/www/takaoka-air-match/
+

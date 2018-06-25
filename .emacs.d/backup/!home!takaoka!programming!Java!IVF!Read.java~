@@ -1,0 +1,22 @@
+import java.util.*;
+import java.io.*;
+
+public class Read{
+    public static void main(String[] args){
+        try{
+            FileInputStream fis = new FileInputStream("test.txt");
+        } catch(FileNotFoundException e) {
+            e.printStackTrace();
+            return;
+        }
+
+        byte[] buf = new byte[2];
+        int len;
+        try{
+            len = fis.read(buf,0,1);
+        } catch(IOException e) {
+            e.printStackTrace();
+            return;
+        }
+    }
+}

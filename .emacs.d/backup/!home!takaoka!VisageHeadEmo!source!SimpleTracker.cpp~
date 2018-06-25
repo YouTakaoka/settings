@@ -1,0 +1,507 @@
+//doxygen
+/*! \file */
+
+
+#include "cv.h"
+#include "highgui.h"
+#include <stdio.h>
+#include <unistd.h>
+#include "visageVision.h"
+#include "Common.h"
+#include "StrStreamUtils.h"
+#include "term.h"
+#include <math.h>
+#include <sys/timeb.h>
+
+using namespace std;
+using namespace VisageSDK;
+
+VisageTracker *m_Tracker = 0;
+
+IplImage *framePtr = 0;
+
+const int MAX_FACES = 4;
+static FaceData trackingData[MAX_FACES];
+
+int *track_stat = 0;
+
+CvCapture* capture;
+
+long trackingTime;
+
+//if user closes window used for displaying results, this will be set to 1 and tracking will stop
+bool exitApp;
+
+IplImage *imageBGRA;
+
+/**
+ * 
+ */
+void my_fflush(void)
+{
+    int c;
+    do {
+        c = getchar();
+    } while (c != '\n' && c != EOF);
+}
+
+/**
+* Function for clearing console window. 
+*/
+void my_ClrScrn(void)
+{
+  if (!cur_term)
+    {
+    int result;
+    setupterm( NULL, STDOUT_FILENO, &result );
+    if (result <= 0) return;
+    }
+
+  putp( tigetstr( "clear" ) );
+}
+
+// void displayResults()
+// {
+// 	//if user closes window used for displaying results, tracking will stop
+// 	if (!cvGetWindowHandle("SimpleTracker"))
+// 	{
+// 		exitApp = true;
+// 		return;
+// 	}
+
+// 	my_ClrScrn();
+// 	printf("Tracking in progress!\n\n");
+
+// 	char *tstatus;
+	
+// 	for (int i=0; i<MAX_FACES; i++)
+// 	{
+// 		if (track_stat[i] == TRACK_STAT_OFF)
+// 			tstatus = "OFF";
+// 	}
+	
+// 	for (int i=0; i<MAX_FACES; i++)
+// 	{
+// 		if (track_stat[i] == TRACK_STAT_INIT)
+// 			tstatus = "INITIALIZING";
+// 	}
+	
+// 	for (int i=0; i<MAX_FACES; i++)
+// 	{
+// 		if (track_stat[i] == TRACK_STAT_RECOVERING)
+// 			tstatus = "RECOVERING";
+// 	}
+	
+// 	for (int i=0; i<MAX_FACES; i++)
+// 	{
+// 		if (track_stat[i] == TRACK_STAT_OK)
+// 			tstatus = "OK";
+// 	}
+
+// 	printf(" Tracking status: %s\n\n", tstatus);
+
+// 	static float eyeDistance = -1.0f;
+
+// 	// Example code for accessing specific feature points, in this case nose tip and eyes
+// 	if(track_stat[0] == TRACK_STAT_OK)
+// 	{
+// 		FDP *fp = trackingData[0].featurePoints3DRelative;
+// 		float nosex = fp->getFPPos(9,3)[0];
+// 		float nosey = fp->getFPPos(9,3)[1];
+// 		float nosez = fp->getFPPos(9,3)[2];
+// 		float lex = fp->getFPPos(3,5)[0];
+// 		float ley = fp->getFPPos(3,5)[1];
+// 		float lez = fp->getFPPos(3,5)[2];
+// 		float rex = fp->getFPPos(3,6)[0];
+// 		float rey = fp->getFPPos(3,6)[1];
+// 		float rez = fp->getFPPos(3,6)[2];
+// 		float eyedist = lex -rex;
+// 		int dummy = 0;
+// 	}
+
+// 	// display the frame rate, position and other info
+// 	float trackingFrameRate = trackingData[0].frameRate;
+
+// 	if (imageBGRA)
+// 		printf(" %4.1f FPS (track %ld ms) \n Resolution: input %dx%d\n\n",trackingFrameRate, trackingTime, framePtr->width, framePtr->height);
+	
+// 	cvShowImage("SimpleTracker",imageBGRA);
+// 	cvWaitKey(10);
+
+// 	if (imageBGRA)
+// 		cvReleaseImage(&imageBGRA);
+// }
+
+
+/**
+* Function used for measuring tracker speed. 
+* Used for video synchronization (if flag video_file_sync is set to 1)
+*
+*/
+static long getCurrentTimeMs()
+{
+	struct timeb timebuffer;
+	ftime( &timebuffer );
+	
+	long clockTime = 1000 * (long)timebuffer.time + timebuffer.millitm;
+
+	return clockTime;
+}
+
+
+/**
+* The main function for tracking from a video file. 
+* It is called when the 'v' is chosen.
+*
+*/
+void trackfromavivideo(char *strAviFile, char *cfgFile)
+{
+	double frameTime;
+	int frameCount = 0;
+	
+	//If the flag is set to 1 playback is synchronised by skipping video frames 
+	//or introducing delay as needed, so the video file is played at its normal (or desired) speed (set variable targetFps to desired fps)
+	bool video_file_sync = true;
+	
+	long currentTime;
+	
+	//set to desired fps you wish to achieve from tracker
+	float targetFps = 30.0;
+	//float targetFps = cvGetCaptureProperty( capture, CV_CAP_PROP_FPS );
+	
+        //	cvNamedWindow("SimpleTracker", CV_WINDOW_AUTOSIZE);
+        //	cvMoveWindow("SimpleTracker",100,100);
+	
+
+	// set the configuration file
+	m_Tracker->setTrackerConfiguration(cfgFile);
+
+	capture = cvCaptureFromFile(strAviFile);
+
+	if(!capture )
+	{
+		printf("Can't read video file.");
+	}
+	
+	// moment when video started
+	long startTime = getCurrentTimeMs();
+	
+	//frame duration if video fps was equal to targetFps
+	frameTime = 1000.0/targetFps;
+	
+        //	IplImage *logo = cvLoadImage("../Samples/Linux/data/images/logo.png", CV_LOAD_IMAGE_UNCHANGED);
+	
+	//tracking is performed while user doesn't close window for displaying results
+	while(!exitApp)
+	{
+		if(!capture )
+			break;
+		
+		if (!cvGrabFrame( capture ))
+			break;
+		frameCount++;
+		
+		if (video_file_sync)
+		{
+			currentTime = getCurrentTimeMs();
+			
+			//checking if tracker is too slow
+			while((currentTime-startTime) > frameTime*(1+frameCount) )
+			{
+				if( !cvGrabFrame( capture )) //end of stream
+						return;
+				frameCount++;
+				currentTime = getCurrentTimeMs();
+			}	
+			
+			currentTime = getCurrentTimeMs();
+			
+			//checking if tracker is too fast (we don't want to risk unnecessary delay so we allow some extra frames, that's why framecount-5)		
+			while((currentTime-startTime) < frameTime*(frameCount-5))
+			{
+				sleep(0.001);
+				currentTime = getCurrentTimeMs();
+			}
+		}
+		
+		if(!(framePtr = cvRetrieveFrame( capture ))) 
+			break;
+		long startTime = getCurrentTimeMs();
+		track_stat = m_Tracker->track(framePtr->width, framePtr->height, (const char*)framePtr->imageData, trackingData, VISAGE_FRAMEGRABBER_FMT_RGB, VISAGE_FRAMEGRABBER_ORIGIN_TL, 0, frameTime*frameCount, MAX_FACES);
+		long endTime = getCurrentTimeMs();
+		trackingTime = endTime - startTime;
+
+                if(track_stat[0] == TRACK_STAT_OK){
+                  double x = trackingData[0].faceTranslation[0];
+                  double y = trackingData[0].faceTranslation[1];
+                  double z = trackingData[0].faceTranslation[2];
+                  printf("(x,y,z)=(%lf,%lf,%lf)\n", x,y,z);
+                } else {
+                  printf("Error: Tracking failed. ");
+                  printf("track_stat = %d\n",track_stat[0]);
+                  printf("framePtr->width=%d\n",framePtr->width);
+                  printf("framePtr->height=%d\n\n",framePtr->height);
+                }
+		// for (int i= 0; i<MAX_FACES; i++)
+		// {
+		// 	if (track_stat[i] == TRACK_STAT_OK)
+		// 		VisageDrawing::drawResults((VsImage*)framePtr, &trackingData[i]);
+		// }
+		// imageBGRA = cvCreateImage(cvSize(framePtr->width, framePtr->height), IPL_DEPTH_8U, 4);
+		// cvCvtColor(framePtr, imageBGRA, CV_BGR2BGRA);
+		// if (logo)
+		// 	VisageDrawing::drawLogo((VsImage*)imageBGRA, (VsImage*)logo);
+		// displayResults();
+	}
+	cvReleaseCapture(&capture);
+	//cvReleaseImage(&logo);
+}
+
+
+/**
+* The main function for tracking from a video camera connected to the computer.
+* It is called when the 'c' is chosen.
+*
+*/
+// void trackfromcam(char *cfgFile)
+// {
+// 	double cam_width = 640;
+// 	double cam_height = 480;
+// 	double cam_device = 0;
+	
+// 	cvNamedWindow("SimpleTracker", CV_WINDOW_AUTOSIZE);
+// 	cvMoveWindow("SimpleTracker",100,100);
+
+// 	capture = cvCaptureFromCAM( cam_device );
+// 	cvSetCaptureProperty(capture, CV_CAP_PROP_FRAME_WIDTH, cam_width);
+// 	cvSetCaptureProperty(capture, CV_CAP_PROP_FRAME_HEIGHT, cam_height);
+// 	cvSetCaptureProperty(capture, CV_CAP_PROP_FPS, 30);
+	
+// 	if(!capture )
+// 	{
+// 		printf("Can't initialize camera (OpenCV). Please check if your camera is installed properly.\n\n");
+// 	}
+	
+// 	m_Tracker->setTrackerConfiguration(cfgFile);
+	
+// 	IplImage *logo = cvLoadImage("../Samples/Linux/data/images/logo.png", CV_LOAD_IMAGE_UNCHANGED);
+// 	while(!exitApp)
+// 	{
+// 		if(!capture )
+// 			break;
+		
+// 		if( !cvGrabFrame( capture ))
+// 				break;
+// 		if(!(framePtr = cvRetrieveFrame( capture ))) 
+// 				break;
+			
+// 		cvFlip(framePtr, framePtr, 1);
+// 		long startTime = getCurrentTimeMs();
+// 		track_stat = m_Tracker->track(framePtr->width, framePtr->height, (const char*)framePtr->imageData, trackingData, VISAGE_FRAMEGRABBER_FMT_RGB, VISAGE_FRAMEGRABBER_ORIGIN_TL, 0, -1, MAX_FACES);
+// 		long endTime = getCurrentTimeMs();
+// 		trackingTime = endTime - startTime;
+			
+// 		for (int i= 0; i<MAX_FACES; i++)
+// 		{
+// 			if (track_stat[i] == TRACK_STAT_OK)
+// 				VisageDrawing::drawResults((VsImage*)framePtr, &trackingData[i]);
+// 		}
+// 		imageBGRA = cvCreateImage(cvSize(framePtr->width, framePtr->height), IPL_DEPTH_8U, 4);;
+// 		cvCvtColor(framePtr, imageBGRA, CV_BGR2BGRA);
+// 		if (logo)
+// 			VisageDrawing::drawLogo((VsImage*)imageBGRA, (VsImage*)logo);
+// 		displayResults();
+// 	}
+// 	cvReleaseCapture(&capture);
+// 	cvReleaseImage(&logo);
+// }
+
+namespace VisageSDK //all visage|SDK calls must be in visageSDK namespace
+{
+	void initializeLicenseManager(const char *licenseKeyFileFolder);
+}
+
+/*! \mainpage  visage|SDK VisageTrackerDemo example project
+*
+* \htmlonly
+* <table border="0">
+* <tr>
+* <td width="32"><a href="../../../../../bin/VisageTrackerDemo"><img src="../../../../../doc/images/run_sample.png" border=0 title="Run Sample (this may not work in all browsers, in such case please run VisageTrackerDemo from the visageSDK\bin folder.)"></a></td>
+* <td width="32"><a href="../../../../../bin"><img src="../../../../../doc/images/open_bin_folder.png" border=0 title="Open Executable Folder (visageSDK\bin)"></a></td>
+* <td width="32"><a href="../../../data"><img src="../../../../../doc/images/open_data_folder.png" border=0 title="Open Data Folder"></a></td>
+* <td width="32"><a href="../../../data/video"><img src="../../../../../doc/images/open_folder.png" border=0 title="Open Video Folder"></a></td>
+* <td width="32"><a href="../../../build"><img src="../../../../../doc/images/open_project_folder.png" border=0 title="Open Project Folder"></a></td>
+* <td width="32"><a href="../../../source/VisageTrackerDemo"><img src="../../../../../doc/images/open_source_folder.png" border=0 title="Open Source Code Folder"></a></td>
+* </tr>
+* </table>
+* \endhtmlonly
+*
+* \if REDHAT_DOXY 
+* <h2>Dependencies</h2>
+*
+* Prerequisites to building the sample project are:
+* <ul>
+* <li>You should have the Software Development Workstation version of RHEL6 (you can choose the version during the installation of RHEL6)</li>
+* <li>OpenGL with dynamic libraries: GL, GLU (yum install mesa-libGL-devel mesa-libGLU-devel)</li>
+* <li>GTK+ 2.0 with dynamic library: gtk-x11-2.0 (yum install gtk2-devel)
+*      - provided OpenCV library is built with GTK support
+*      - libVision library also uses GTK to display error messages
+* <li>Install OpenBLAS library from EPEL repository: </li>
+* <ul>
+* <li>1. Enable EPEL Repository by running: \n
+*   $> wget https://dl.fedoraproject.org/pub/epel/epel-release-latest-6.noarch.rpm \n
+*   $> sudo rpm --import https://dl.fedoraproject.org/pub/epel/RPM-GPG-KEY-EPEL-6 \n
+* </li>
+*   $> sudo rpm -Uvh epel-release-latest-6.noarch.rpm
+* <li>2. Install OpenBLAS library by running: \n
+*   $> sudo yum install openblas-devel
+* </li>
+* </ul>
+* <li>curses terminal control library (yum install ncurses-devel)</li>
+* <li>FFMPEG with dynamic libraries: swscale, avformat.</li> \n
+* FFMPEG libraries which were previously installed using ATRPMS repository are now available on ATRPMS repository mirror server. In order to install them, please do the following steps: \n
+* <ul>
+* <li>1. Install RPM repository package (this step can be skipped if you already have ATRPMS repository installed): \n
+*   $> sudo rpm -ivh https://mirror.its.sfu.ca/mirror/CentOS-Third-Party/atrpms/el6-x86_64/stable/atrpms-repo-6-7.el6.x86_64.rpm </li>
+<li>2. Modify baseurl and enabled flag* in atrpms.repo (/etc/yum.repos.d) as follows: \n
+* baseurl=https://mirror.its.sfu.ca/mirror/CentOS-Third-Party/atrpms/el6-$basearch/stable \n
+* enabled=0 \n
+* <b>*</b> This needs to be done in 3 different places in the file.
+</li>
+* <li>3. Run the following command in terminal: \n
+*   $> sudo yum-config-manager --enable atrpms </li>
+* <li>4. Install FFMPEG libraries libavformat and libswscale: \n
+*   $> sudo yum install libavformat55.x86_64 \n
+*   $> sudo ln -s /usr/lib64/libavformat.so.55 /usr/lib64/libavformat.so \n
+*   $> sudo yum install libswscale2.x86_64 \n
+*   $> sudo ln -s /usr/lib64/libswscale.so.2 /usr/lib64/libswscale.so </li>
+* </ul>
+* </ul>
+* </p>
+* \endhtmlonly
+* \else
+* \htmlonly
+* <h2>Dependencies</h2>
+*
+* Prerequisites to building the sample project are:
+* <ul>
+* <li>g++ compiler (versions 4.6.x) (sudo apt-get install g++)</li>
+* <li>OpenGL with dynamic libraries: GL, GLU (sudo apt-get install freeglut3-dev)</li>
+* <li>OpenCV dependencies:
+*	<ul>
+* 	<li>jpeg and pthread dynamic libraries (sudo apt-get install libjpeg8-dev)</li>
+* 	<li>FFMPEG with dynamic libraries: swscale, avformat (sudo apt-get install libswscale-dev libavformat-dev)</li>
+* 	<li>libpng12 (sudo apt-get install libpng12-dev)</li>
+* 	<li>libv4l (sudo apt-get install libv4l-dev)</li>
+*	</ul>
+* </li>
+* <li>OpenBLAS library (sudo apt-get install libopenblas-dev)
+* <li>GTK+ 2.0 with dynamic library: gtk-x11-2.0 (sudo apt-get install libgtk2.0-dev)</li>
+* <li>curses terminal control library (sudo apt-get install libncurses5-dev)</li>
+* <li>high level programming interface for IEEE1394 digital camera (sudo apt-get install libdc1394-22-dev)</li>
+* </ul>
+* </p>
+* \endhtmlonly
+* \endif
+* 
+* \htmlonly
+* <h2>Running prebuilt sample</h2>
+* \endhtmlonly
+*
+* The VisageTrackerDemo example project demonstrates the following capabilities of visage|SDK:
+* - real-time head/facial features tracking on multiple faces from video file or camera, with on-the-fly animation, based on the VisageSDK::VisageTracker tracker. Currently, tracking is limited to 4 faces, although this can be modified.
+*
+* To use the application: 
+*
+* \if REDHAT_DOXY 
+* Run the './runTracker.sh' command from the terminal\n\n
+* \else
+* Run the './VisageTrackerDemo' command from the terminal\n\n
+* \endif
+* This is an intentionally simpliefied version of a tracking application, intended to be used by developers as 
+* an introduction. VisageTrackerDemo is a console application, with keyboard based choices made by the
+* user. It then starts tracking and displays tracking status and numeric results in the console. Results are also visualized in an additional window as an overlay 
+* over the original image.
+*
+* Classes and methods that are important for detailed understanding how this
+* sample project is implemented and how it used visage|SDK are:
+* - main(): implements the main user interaction.
+* 
+* \htmlonly
+* <h2>Building the project</h2>
+*
+* <p>
+* The VisageTrackerDemo sample project source file is located in the <a href="../../../source/VisageTrackerDemo">Samples/Linux/source/VisageTrackerDemo</a> subfolder of the visage|SDK for Linux folder.
+* It is built using the provided Makefile located in Samples/Linux/build subfolder.
+* </p>
+* \endhtmlonly
+*/
+
+/**
+* The simple tracker.
+*
+*/
+int main( int argc, const char* argv[] )
+{
+	char *videofilename = "../data/video/capture1.avi";
+	char *cfgfile = NULL;
+	char source, type;
+
+	char defaultConfigFile[100];
+	
+	exitApp = false;
+	
+	FILE *f = fopen("../conf/DefaultConfiguration.txt","r");
+	if (f == NULL) {
+		printf("Error opening default configuration file!\n");
+		exit(1);
+	}
+	
+	fgets(defaultConfigFile,100,f);
+	fclose(f);
+
+	defaultConfigFile[strlen(defaultConfigFile)-2] = 0; //remove line feed character
+	
+	initializeLicenseManager("108-987-414-146-938-870-285-861-821-185-268.vlc");
+
+	m_Tracker = new VisageTracker(defaultConfigFile); 
+
+	printf("Simple Tracker application\n\n");
+
+	printf("Track from (v)ideo or (c)am? ");
+	scanf("%c", &source); my_fflush();
+
+	printf("Type of tracking (h)ead, (f)acial features or (d)efault? ");
+	scanf("%c", &type); my_fflush();
+
+	switch (type) {
+		case 'h':
+			cfgfile = "../conf/Head Tracker.cfg";
+			break;
+		case 'f':
+			cfgfile = "../conf/Facial Features Tracker - High.cfg";
+			break;
+		default:
+			//cfgfile = defaultConfigFile;
+			cfgfile = "../conf/Facial Features Tracker - High.cfg";
+			break;
+	}
+
+	switch (source) {
+		case 'v':
+			trackfromavivideo(videofilename, cfgfile);
+			break;
+                        //case 'c':
+			//trackfromcam(cfgfile);
+			//break;
+		default:
+			printf("Wrong choice!\n");
+			break;
+	}
+	
+	delete m_Tracker;
+	m_Tracker = 0;
+	capture = 0;
+
+	return 0;
+}

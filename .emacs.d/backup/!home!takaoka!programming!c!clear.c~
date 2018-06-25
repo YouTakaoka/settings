@@ -1,0 +1,8 @@
+#include<stdio.h>
+
+int main(){
+  printf("hoge\n");
+  printf("\033[2J");
+  printf("ahe\n");
+  return 0;
+}

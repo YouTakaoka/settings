@@ -1,0 +1,79 @@
+#include<opencv2/opencv.hpp>
+#include<iostream>
+
+using namespace std;
+
+cv::Mat I420toBGR(uchar* pY, uchar* pU, uchar* pV, int height, int width);
+
+int main(){
+  cv::Mat m1 = cv::imread("sample.bmp");
+  cv::Mat m2;
+  cv::Mat m3;
+  cvtColor(m1,m2,CV_BGR2YUV_I420);
+
+  /* convert */
+  vector<cv::Mat> planes;
+  split(m2, planes);
+  // m3 = I420toBGR(planes[0].data, planes[1].data, planes[2].data, m2.rows, m2.cols);
+  // cvtColor(m2,m3,CV_YUV2BGR_I420);
+
+  /* show image */
+  cv::namedWindow("y", CV_WINDOW_AUTOSIZE);
+  cv::namedWindow("u", CV_WINDOW_AUTOSIZE);
+  cv::namedWindow("v", CV_WINDOW_AUTOSIZE);
+  cv::imshow("y", planes[0]);
+  cv::imshow("u", planes[1]);
+  cv::imshow("v", planes[2]);
+  cv::waitKey();
+}
+
+// left upper, right upper, left bottom, right bottom, namely, of the block
+enum{
+  LU=0,
+  RU=1,
+  LB=2,
+  RB=3 
+};
+
+cv::Mat I420toBGR(uchar* pY, uchar* pU, uchar* pV, int height, int width){
+    cv::Mat result(height,width,CV_8UC3);
+    uchar y,cb,cr;
+
+    long ySize=width*height;
+    long uSize;
+    uSize=ySize>>2;
+
+    uchar *output;
+
+    uchar r,g,b;
+    for (int i=0;i<uSize;++i){
+      int npix[4]; // address of each pixel in the block
+      npix[LU] = 4*(i/(width/2))*width/2 + 2*(i%(width/2));
+      npix[RU] = npix[LU] + 1;
+      npix[LB] = npix[LU] + width;
+      npix[RB] = npix[LB] + 1;
+        
+      for(int j=0;j<4;++j){
+        output = result.data + 3*npix[j];
+
+        y=pY[i*4+j];
+        cb=pU[i];
+        cr=pV[i];
+
+        //ITU-R standard
+        // b=cv::saturate_cast<uchar>(y+1.772*(cb-128));
+        // g=cv::saturate_cast<uchar>(y-0.344*(cb-128)-0.714*(cr-128));
+        // r=cv::saturate_cast<uchar>(y+1.402*(cr-128));
+
+        b=cv::saturate_cast<uchar>(1.164*(y-16)+2.018*(cb-128));
+        g=cv::saturate_cast<uchar>(1.164*(y-16)-0.391*(cb-128)-0.813*(cr-128));
+        r=cv::saturate_cast<uchar>(1.164*(y-16)+1.596*(cr-128));
+
+        output[0] = b;
+        output[1] = g;
+        output[2] = r;
+      }
+    }
+    return result;
+}
+

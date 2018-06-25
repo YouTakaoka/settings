@@ -1,0 +1,2 @@
+compile: vp8decode.c
+	gcc tools_common.c vp8decode.c -lvpx -lm -lpthread -o vp8decode

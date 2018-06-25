@@ -1,0 +1,67 @@
+#include<stdlib.h>
+#include<stdio.h>
+#include<string.h>
+
+typedef unsigned short uint16_t;
+typedef unsigned int uint32_t;
+
+struct wavheader{
+  char riff[4];
+  uint32_t file_size;
+  char wave[4];
+  char fmt[4];
+  uint32_t fmt_bytes;
+  uint16_t format_id;
+  uint16_t channels;
+  uint32_t sampling_rate;
+  uint32_t bps;
+  uint16_t block_size;
+  uint16_t bits_per_sample;
+  char data[4];
+  uint32_t data_size;
+} __attribute((__packed__))__;
+
+typedef struct wavheader wavheader;
+
+#define HEADER_SIZE 38
+
+void wavheader_init(wavheader* header);
+
+int main(int argc, char* argv[]){
+  if(argc != 2){
+    printf("usage: wav data_size\n");
+    return 1;
+  }
+  int data_size = atoi(argv[1]);
+  int bits_per_sample = 16;
+
+  wavheader header;
+  wavheader_init(&header);
+
+  header.data_size = data_size;
+  header.file_size = header.data_size + HEADER_SIZE;
+  header.channels = 1;
+  header.sampling_rate = 16000;
+  header.bits_per_sample = bits_per_sample;
+  header.block_size = header.bits_per_sample/8 * header.channels;
+  header.bps = header.sampling_rate * header.block_size;
+
+  fwrite(&header, 1, sizeof(header),stdout);
+  
+  return 0;
+}
+
+
+void wavheader_init(wavheader* header){
+  char riff[4] = "RIFF";
+  char wave[4] = "WAVE";
+  char fmt[4] = "fmt ";
+  char data[4] = "data";
+  strcpy(header->riff, riff);
+  strcpy(header->wave, wave);
+  strcpy(header->fmt, fmt);
+  strcpy(header->data, data);
+
+  header->fmt_bytes = 16;
+  header->format_id = 1;
+}

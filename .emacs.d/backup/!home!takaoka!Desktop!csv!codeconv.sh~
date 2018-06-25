@@ -1,0 +1,9 @@
+#!/bin/bash
+
+DIR1="belonglist160201"
+DIR2="belonglist160201-utf8"
+
+ls $DIR1 | while read item; do
+    iconv -f sjis -t utf8 "$DIR1/$item" > "$DIR2/$item"
+done
+

@@ -1,0 +1,6 @@
+<?php
+$arr = array(
+    'hohe' => 'ahe',
+    'ahe' => 'piyo'
+);
+var_dump($arr);

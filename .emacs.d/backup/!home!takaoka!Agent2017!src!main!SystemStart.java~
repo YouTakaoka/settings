@@ -1,0 +1,56 @@
+package main;
+import analysis.HeadMovingAnalysis;
+import analysis.SpeechAnalysis;
+import calculator.DialogActivity;
+import calculator.DisplayEvaluationValue;
+import core.StateClass;
+import input.PythonInput;
+import input.VisageInput;
+import manager.DialogManager;
+
+public class SystemStart {
+	public static void main(String[] args) {
+                String outputFIFO = args[0];
+            
+		// TODO 自動生成されたメソッド・スタブ
+		try{
+
+			//*************************************************各モジュール起動*******************************************************//
+			PythonInput pyInput = new PythonInput();
+			pyInput.start();
+			VisageInput vInput = new VisageInput();
+			vInput.start();
+
+			Thread.sleep(4000);
+
+			//NodTimingAnalysis nod = new NodTimingAnalysis();
+			//nod.start();
+			SpeechAnalysis speech = new SpeechAnalysis();
+			speech.start();
+			HeadMovingAnalysis head = new HeadMovingAnalysis();
+			head.start();
+			DialogActivity da = new DialogActivity();
+			da.start();
+
+			DisplayEvaluationValue display = new DisplayEvaluationValue("DisplayEvaluationVlaue");
+			Thread th = new Thread(display);
+			th.start();
+			//************************************************************************************************************************//
+
+			DialogManager manager = new DialogManager(outputFIFO);
+			manager.start();
+
+			while(StateClass.isRun){
+				Thread.sleep(50);
+				continue;
+			}
+
+			speech.end();
+			head.end();
+
+
+		}catch(Exception e){
+			e.printStackTrace();
+		}
+	}
+}

@@ -1,0 +1,153 @@
+<?php
+
+class PostalController extends PageAppController
+{
+    //Constants
+    const PATH_TO_DATAFILE = CSV_DIR."KEN_ALL.CSV.utf8"; //Datafile of postal code and address correspondense
+    const POSTAL_TABLE = 'postal';
+	//--------------------------------------
+	//Constructor
+	function __construct()
+	{
+		parent::__construct();
+		if($this->_auth->IsLoggedIn()) {
+			$user = $this->_auth->getUserData();
+
+			$this->data['user']      = $user;
+		} else {
+			$this->redirect(SITE_URL);
+		}
+
+		//if (is_null($_SERVER['HTTP_REFERER'])) $this->redirect(SITE_URL);
+
+	}
+
+	//--------------------------------------
+	// Top
+	function index($params)
+	{
+        if(!isset($params["postal_code"])){
+            echo "Error: Specify parameter postal_code";
+            exit();
+        }
+        $code = $params["postal_code"];
+
+        // Get data from database
+        $sql = "SELECT * FROM ".self::POSTAL_TABLE." WHERE postal_code = ".$code.";";
+        $res = $this->_db->query($sql);
+        if($res){
+            $data = $res->fetchAll();
+        } else {
+            die("Failed to get data from database.\n");
+        }
+
+        if(count($data) == 0){
+            echo "Error: Postal code does not exist.\n";
+            exit();
+        }
+        
+        // Sort by id
+        usort($data, 'cmp_by_id');
+
+        // Catenate addresses and print out
+        $out = "";
+        foreach($data as $row){
+            $out .= $row["address1"]." ".$row["address2"]." ".remove_parentheses($row["address3"]);
+        }
+        echo $out."\n";
+    }
+
+    function cmp_by_id($a, $b){
+        return $a["id"] > $b["id"];
+    }
+    
+    function remove_parentheses($str)
+    {
+    	return preg_match('/(.*)（.*）/', $str);
+    }
+
+    //-----------------------------------------
+    // Create postal database table from the CSV data
+    function create_data()
+    {
+        // Read postal code data file
+        if(($handle = fopen(self::PATH_TO_DATAFILE, "r")) !== false) {
+            while (($line = fgetcsv($handle, 1000, ",")) !== false) {
+                $records[] = $line; 
+            } 
+            fclose($handle); 
+        } else {
+            echo "File open error.\n";
+        }
+
+        foreach($records as $rec){
+            $db_records[] = array("postal_code" => $rec[2],
+                            "address1" => $rec[6],
+                            "address2" => $rec[7],
+                            "address3" => $rec[8]);
+        }
+
+        // Create temporary table
+        $sql = "CREATE TEMPORARY TABLE temp ("
+             ."id SERIAL PRIMARY KEY,"
+             ."postal_code VARCHAR(7),"
+             ."address1 VARCHAR(256),"
+             ."address2 VARCHAR(256),"
+             ."address3 VARCHAR(256)"
+             .");";
+        $res = $this->_db->query($sql);
+        if(!$res){
+            echo "Failed to create table";
+        }
+        
+        
+        // Insert data into database (using placeholder)
+        $sql = "INSERT INTO temp (postal_code, address1, address2, address3) "
+             ."VALUES (:postal_code, :address1, :address2, :address3);";
+        $sth = $this->_db->prepare($sql);
+      
+        if(is_null($sth)){
+            echo "Failed to prepare PDO statement.";
+        } else {
+            echo "PDO statement successfully prepared.\n";            
+        }
+
+        
+        try{
+            foreach($db_records as $db_rec){
+                $sth->execute(array(":postal_code" => $db_rec["postal_code"],
+                                    ":address1" => $db_rec["address1"],
+                                    ":address2" => $db_rec["address2"],
+                                    ":address3" => $db_rec["address3"]));
+            }
+        } catch(Exception $e) {
+            echo "Error: Failed to insert data into database.\n";
+            var_dump($e);
+        }
+
+        echo "Data successfully wrote.\n";
+        
+        
+        // Delete table if exists
+        $sql = "SHOW TABLES LIKE '".self::POSTAL_TABLE."';";
+        $res = $this->_db->query($sql);
+        if(count($res->fetchAll())){
+            // Table exists
+            $sql = "DROP TABLE ".self::POSTAL_TABLE;
+            $res = $this->_db->query($sql);
+            if(!$res){
+                echo "Failed to delete table";
+            }
+        }
+
+        // Create postal table
+        $sql = "CREATE TABLE ".self::POSTAL_TABLE." SELECT * FROM temp;";
+        $res = $this->_db->query($sql);
+        if(!$res){
+            echo "Failed to create postal table.\n";
+        } else {
+            echo "Postal table successfully created.\n";
+        }
+    }
+}
+

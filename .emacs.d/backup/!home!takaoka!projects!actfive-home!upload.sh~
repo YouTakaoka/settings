@@ -1,0 +1,5 @@
+#!/bin/bash
+
+echo "v7sabktpa7"
+rsync -ruv $1 ~/agency/member/ a-match@a-match.sakura.ne.jp:/home/a-match/www/takaoka-air-match/
+#scp -r ~/agency/member/* a-match@a-match.sakura.ne.jp:/home/a-match/www/takaoka-air-match/

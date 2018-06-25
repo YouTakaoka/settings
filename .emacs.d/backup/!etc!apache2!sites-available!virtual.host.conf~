@@ -1,0 +1,18 @@
+<VirtualHost *:80>
+    ServerName airmatch.host
+    DocumentRoot  /var/www/agency/member/public_html
+</VirtualHost>
+
+<VirtualHost *:80>
+##ServerAdmin webmaster@dummy-host2.example.com
+DocumentRoot "<actfive>\html"
+ServerName actfive.jp
+ErrorLog "logs/actfive.jp-error.log"
+CustomLog "logs/actfive.jp-access.log" common
+<Directory "<actfive>\html">
+Options Indexes FollowSymLinks
+AllowOverride All
+Require all granted
+</Directory>
+</VirtualHost>
+

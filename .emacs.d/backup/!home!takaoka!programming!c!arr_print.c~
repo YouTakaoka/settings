@@ -1,0 +1,10 @@
+#include<stdio.h>
+
+int main(){
+  char c;
+  char[20] arr = "";
+  while((c = getc()) != EOF){
+    arr = arr + c;
+  }
+  printf("%s\n", arr);
+}

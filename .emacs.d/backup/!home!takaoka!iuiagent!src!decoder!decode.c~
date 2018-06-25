@@ -1,0 +1,89 @@
+#include<stdio.h>
+#include<opus/opus.h>
+#include<stdlib.h>
+#include<string.h>
+
+int readUntil(FILE* fp, char* buf, char str[], int max);
+
+int main(){
+  // Encoding parameters
+  opus_int32 Fs = 16000; // Sampling rate of input signal(Hz)
+  int fd = 10;           // Frame duration(ms)
+  int frame_size = Fs * fd / 1000; // Number of samples in a frame
+  int bits_per_sample = 16;  // Bits per sample
+  int sample_bytes = bits_per_sample / 8;  // Byte size of a sample
+  int channels = 1;
+  int frame_bytes = sample_bytes * frame_size * channels;
+
+  // Packet things
+  char END[] = "###end###";
+  
+  // Open input file
+  char input_file_name[] ="out.opus";
+  FILE* inp = fopen(input_file_name, "r");
+  if(inp == NULL){
+    printf("Error opening input file.\n");
+  }
+
+  // Open output file
+  char output_file_name[] = "out.wav";
+  FILE* out = fopen(output_file_name, "w");
+  if(out == NULL){
+    printf("Error opening output file.\n");
+  }
+  
+  // Create opus decoder
+  OpusDecoder* dec;
+  int err;
+  dec = opus_decoder_create(Fs, channels, &err);
+  if(err != OPUS_OK){
+    printf("Decoder creation error: %d\n", err);
+    return 1;
+  }
+
+  // Decode
+  opus_int16* pcm = malloc(sample_bytes*100000); // memory for input frame data
+  unsigned char* data = malloc(frame_bytes); // memory for output frame data
+  int len;
+  while((len = readUntil(inp, data, END, 128)) > 0){
+    // Decode
+    int s = opus_decode(dec, data, len*sizeof(char), pcm, frame_size,0);
+    if(s < 0){
+      printf("Decoding error: %d\n", s);
+      //      return 1;
+    } else {
+      // Write into output file
+      fwrite(pcm, sample_bytes, s, out);
+    }
+  }
+
+  // Free memories for data
+  free(pcm);
+  free(data);
+  
+  // Destroy opus encoder and decoder
+    opus_decoder_destroy(dec);
+
+  // Close input file
+  fclose(inp);
+
+  // Close output file
+  pclose(out);
+  
+  return 0;
+}
+
+int readUntil(FILE* fp, char* buf, char str[], int max){
+  int l;
+  int sl = strlen(str);
+
+  for(l=0; l<max; l++){
+    char c=getc(fp);
+    if(c == EOF) continue;
+    buf[l] = c;
+    if(l+1 >= sl && memcmp(buf+l-sl+1, str, sl)==0){
+      return l-sl+1;
+    }
+  }
+  return 0;
+}

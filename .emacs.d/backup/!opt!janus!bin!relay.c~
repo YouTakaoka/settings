@@ -1,0 +1,13 @@
+#include<stdio.h>
+
+int main(){
+  char c;
+  FILE* fp;
+  fp = fopen("rec.txt", "w");
+  
+  while((c=getc(stdin)) != EOF){
+    putc(c, fp);
+  }
+
+  fclose(fp);
+}

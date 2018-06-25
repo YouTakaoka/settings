@@ -1,0 +1,5 @@
+#!/bin/bash
+
+while input line; do
+    echo line
+done

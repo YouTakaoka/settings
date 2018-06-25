@@ -1,0 +1,18 @@
+<VirtualHost *:80>
+    ServerName airmatch.host
+    DocumentRoot  /home/takaoka/projects/agency/member/public_html
+    <Directory "/home/takaoka/projects/agency/member/public_html">
+               Require all granted
+    </Directory>
+</VirtualHost>
+
+<VirtualHost *:80>
+    DocumentRoot "/home/takaoka/projects/actfive/html"
+    ServerName actfive.jp
+    #ErrorLog "logs/actfive.jp-error.log"
+    #CustomLog "logs/actfive.jp-access.log" common
+    <Directory "/home/takaoka/projects/actfive/html">
+        Require all granted
+    </Directory>
+</VirtualHost>
+

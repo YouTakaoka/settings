@@ -1,0 +1,24 @@
+package core;
+
+public class SourceClass{
+	long preTime;  // 現在の時刻
+
+	// pythonモジュールから読み込まれる韻律情報と音声ファイルのデータ
+	public static int pitch = 0;
+	public static double intensity = 0;
+	public static String message = null;
+	public static String fileName = null;
+
+	// VisageSDKから読み込まれる頭部の座標データ
+	public static double x = 0;
+	public static double y = 0;
+	public static double z = 0;
+
+	// VisageSDKから読み込まれる感情ラベルとその強度
+	public static String emotion = null;
+	public static double emoPower = 0;
+
+	// 後々センサが増える場合には、そのデータを読み込む変数をここに書き込んで拡張してください。
+
+	// Queue要求関数
+}

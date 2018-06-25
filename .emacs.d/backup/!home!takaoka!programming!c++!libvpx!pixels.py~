@@ -1,0 +1,2 @@
+def ru(i,w)
+  return 4*floor(i/(w/2))*w/2 + 2*(i%(w/2))

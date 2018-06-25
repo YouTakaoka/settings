@@ -1,0 +1,12 @@
+#include<iostream>
+#include<opencv2/opencv.hpp>
+
+int main(){
+  //Capture from video camera
+  cv::VideoCapture cap(0);
+  if(!cap.isOpened()){
+    cout << "Failed to initialize camera." << endl;
+    return 1;
+  }
+
+}

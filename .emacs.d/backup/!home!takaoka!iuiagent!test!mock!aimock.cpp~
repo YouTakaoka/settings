@@ -1,0 +1,182 @@
+#include<stdio.h>
+#include<string.h>
+#include<stdlib.h>
+#include<math.h>
+#include<iostream>
+
+#define SAMPLE_RATE 16000  // sampling rate(Hz)
+#define END "###end###"    // indicates the end of input text data
+#define TEXT_IN_FIFO "/tmp/janus-in-fifo-text-" // + session number
+#define PATH_TO_ENCODER "/opt/iuiagent/bin/opus_encoder/encode"
+#define MES_STR "#mes: "
+#define END_MES "End"
+#define FRAME_DURATION 20   // unit is ms
+#define SAMPLE_SIZE 2       // bytes per sample
+#define PAC_SIZE SAMPLE_RATE * FRAME_DURATION / 1000 * SAMPLE_SIZE   // packet size
+#define BUF_SIZE SAMPLE_RATE * 5  //size for sample buffer
+
+using namespace std;
+
+int readUntil(FILE* fp, char* buf, char str[], const int max);
+
+unsigned short talk = 0;
+
+/**
+ * first argument: session number
+ */
+int main(int argc, char* argv[]){
+  int verb = 0;
+
+  if(argc < 2){
+    return 1;
+  }
+
+  int session = atoi(argv[1]);  //We need to pass this value to the encoder
+  if(argc > 2 && !strcmp(argv[2], "-v")) verb = 1;   // verbose log option
+
+  char text_in_name[64];  // The name of text input FIFO
+  sprintf(text_in_name, "%s%d", TEXT_IN_FIFO, session);
+
+  //Open text input FIFO
+  FILE* text_in = fopen(text_in_name, "w");
+
+  char cmd[64];  //command line
+  sprintf(cmd, "%s %d", PATH_TO_ENCODER, session);  // usage: encode <session number>
+  FILE* encoder;
+  //Start process of encoder
+  encoder = popen(cmd, "w");
+
+
+  //Read sample pcm data into buffer
+  FILE* sample_f = fopen("/opt/iuiagent/test/Janus/sample.wav-1", "r");
+  if(sample_f == NULL){
+    cerr << "Failed to open sample wav file." << endl;
+    exit(1);
+  }
+  short* rawBuf = (short*)malloc(sizeof(short)*BUF_SIZE);
+  unsigned int size = (unsigned int)fread(rawBuf, sizeof(short), BUF_SIZE, sample_f);
+  fclose(sample_f);
+
+  /* Main loop */
+    while(1){
+      if(verb)
+        cout << "[aitalk]Start reading\n" << endl;
+      
+      //Input string to be used to synthesize voice
+      string input;
+      // getline(cin, input);
+      char buf[1024];
+      int len = readUntil(stdin, buf, END, 1024);
+      if(len < 1){
+        cerr << "[aitalk]Failed to read from stdin." << endl;
+      } else {
+        buf[len] = '\0';
+        input = string(buf);
+      }
+
+      if(verb)
+        cout << "[aitalk]Read text: " << input << endl;
+
+      if(input.find(MES_STR) != string::npos){
+        //We got some message to the Janus client.
+        //Let us dump the message to the text input FIFO.
+        char tmp[1024];
+        sprintf(tmp, "%s\n", input.c_str());  //Do not forget the end of line charactor
+        int offset = input.find(MES_STR) + strlen(MES_STR);
+        char* str = tmp + offset;
+        fwrite(str, sizeof(char), strlen(str), text_in);
+        fflush(text_in);
+
+        //If we got the ending message, exit the loop and the progmram
+        if(input.find(END_MES) != string::npos){
+          cout << "[aitalk]Got ending signal." << endl;
+          break;
+        }
+        
+        continue;
+      }
+
+      unsigned int sample_cnt = 0;
+
+      do{
+        // ------------ Write out header -----------------
+        // talk sequence number
+        fwrite(&talk, sizeof(talk), 1, encoder);
+
+        // timestamp(ms)
+        unsigned long long ts = (sample_cnt)/(SAMPLE_RATE/1000);
+        fwrite(&ts, sizeof(ts), 1, encoder);
+
+        // data size(bytes)
+        unsigned int dsize = PAC_SIZE * sizeof(short);
+        fwrite(&dsize, sizeof(dsize), 1, encoder);
+        // -----------------------------------------------
+
+        // Write out the audio PCM data
+        unsigned int write_size = min((unsigned int)PAC_SIZE, size - sample_cnt);
+        sample_cnt += fwrite(rawBuf+sample_cnt, sizeof(short), (int)write_size, encoder);
+        
+        // Write out the ending string
+        fwrite(END, sizeof(char), strlen(END), encoder);
+
+        if(verb)
+          cout << "[aitalk] Wrote data. talk=" << talk << ", ts=" << ts << ", dsize=" << dsize << endl;
+
+        //sample_cnt += PAC_SIZE;
+      }while(sample_cnt < size);
+
+      // Flush stream
+      fflush(encoder);
+
+      //Send signal that indicates the end of talk
+      fprintf(text_in, "%d:finish\n", talk);
+      fflush(text_in);
+
+      //Send same signal to the encoder
+      fwrite(&talk, sizeof(talk), 1, encoder);  // write talk sequence number
+      unsigned long long end_ts = (unsigned long long)1 << 63;
+      fwrite(&end_ts, sizeof(end_ts), 1, encoder);  // write ending time stamp
+      unsigned int size_zero = 0;
+      fwrite(&size_zero, sizeof(size_zero), 1, encoder); // write size of data (which is zero)
+      fwrite(END, sizeof(char), strlen(END), encoder);  // ending string
+      fflush(encoder);
+      
+      printf("[aitalk]finish writing fifo\n");
+      fflush(stdout);
+
+      talk++;
+    }
+
+    //Tell the encoder to stop
+    unsigned short end_code = 1 << 15;  //Signal of end of dialog
+    fwrite(&end_code, sizeof(unsigned short), 1, encoder);
+    fwrite(END, sizeof(char), strlen(END), encoder);  //Do not forget this!
+    
+    free(rawBuf);
+
+    //Close the process
+    pclose(encoder);
+    
+    //Close text input FIFO
+    fclose(text_in);
+
+}
+
+    
+/**
+* Read from file pointer fp into buffer buf until string str appears
+* @ret length of the string (-1 if the string not found or reached to max)
+*/
+int readUntil(FILE* fp, char* buf, char str[], const int max){
+  int l;
+  int sl = strlen(str);
+  
+  for(l=0; fread(buf+l, 1, 1, fp)>0 && l<max; l++){
+    if(l+1 >= sl && memcmp(buf+l-sl+1, str, sl)==0){
+      return l-sl+1;
+    }
+  }
+
+  return -1;
+}
+

@@ -1,0 +1,32 @@
+function partslist(){  //Get parts data list from database
+    // var table          = document.getElementById('grid');
+
+    var production_no  = getProductionNo();
+    var suppliers_code = getSupplierCode();
+
+    if(!(production_no=="") && !(suppliers_code=="")){
+        $.ajax({
+            url:location.protocol + '//' + location.host + '/purchaseOrder' + '/requestParchaseOrder/',
+            type:'POST',
+            data:{
+                product_code:production_no,
+                suppliers_code:suppliers_code
+            },
+            dataType:'json'
+        }).done(function(res){
+            console.log(res.message);
+            if(!res.success){
+                alert("指定された仕入れ先コードに関連する部品表が存在しません。");
+                setSupplierCode("");
+                setSupplierName("");
+            }else{
+                setSupplierName(res.data[0]['suppliers_name']);
+                autoSearch(res.data);
+            }
+        }).fail(function(jqXHR,textStatus,errorThrown){
+            // alert(jqXHR,textStatus,errorThrown);
+            console.log(jqXHR);
+            alert('error');
+        });
+    }
+}

@@ -1,0 +1,13 @@
+#!/bin/bash
+
+OUT_FIFO=$1
+
+while read line; do
+    if [ $line = "end" ]; then
+        exit 0
+    fi
+    
+    echo $line > OUT_FIFO
+    echo "finish"
+done
+

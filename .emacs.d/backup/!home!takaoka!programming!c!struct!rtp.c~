@@ -1,0 +1,14 @@
+#include<stdio.h>
+
+void rtp_header_set(char* buf, janus_rtp_header* header){
+  /* Simple setter of RTP header. */
+  /* We assume no csrc field for simplicity. */
+  int bit_offset;
+
+  // First byte
+  char first_byte = 0x00;
+  bit_offset = 0;
+
+
+  *(buf+offset) |= (version)
+    }                                                          

@@ -1,0 +1,52 @@
+#!/bin/bash
+
+# Path of FIFO's
+session=$1
+VIDEO_OUT="/tmp/janus-out-fifo-video-$session"
+AUDIO_OUT="/tmp/janus-out-fifo-audio-$session"
+AUDIO_IN="/tmp/janus-in-fifo-audio-$session"
+TEXT_IN="/tmp/janus-in-fifo-text-$session"
+JAVA_AI="/tmp/agent-java-aitalk-$session"
+
+#for test
+TEST1="/tmp/janus-test-python"
+TEST2="/tmp/janus-test-visage"
+
+# Create FIFO's
+for name in $VIDEO_OUT $AUDIO_OUT $AUDIO_IN $TEXT_IN $JAVA_AI; do
+    if [ ! -e "$name" ]; then
+        mkfifo "$name"
+    fi
+done
+
+#Path setting for AITalk
+export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/opt/AI/sdk/bin
+
+######## Start agent server module process ########
+pid=" "
+
+#AI test
+# /opt/iuiagent/test/hello | /opt/iuiagent/bin/AITalk/AsyncCompose $session &
+# pid="$pid $!"
+# cat $VIDEO_OUT > /opt/iuiagent/test/Janus/video.txt &
+# cat $AUDIO_OUT > /opt/iuiagent/test/Janus/audio.txt &
+
+#Flag Visage:1 Python:2 AITalk:4
+#On stage: 7
+java -cp /opt/iuiagent/bin/Java main.SystemStart 6 $session &
+pid="$pid $!"
+cat $JAVA_AI | /opt/iuiagent/bin/AITalk/AsyncCompose $session &
+pid="$pid $!"
+
+# If there is some input from stdin, terminate the process and remove FIFO's
+while true; do
+    if read -t 0.1 LINE; then
+        echo "Got ending signal. Killing agent modules..."
+        kill$pid
+        for name in $VIDEO_OUT $AUDIO_OUT $AUDIO_IN $TEXT_IN; do
+            rm -f "$name"
+        done
+        exit 0
+    fi
+done
+

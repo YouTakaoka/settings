@@ -1,0 +1,20 @@
+/**
+ * Class of payment unit.
+ * Payment unit is the unit of wage payment, which is equivalent to a group of wage payment total data which have the common closing number, jobhunter number, and payment date.
+ * Single payment unit corresponds to a single data record in the message of Zenginkyo standard transmission protocol.
+ *
+ * @author Y.Takaoka
+ */
+class PaymentUnit {
+    /**
+     * Array of instances of this class
+     */
+	public static $instances = array();
+	private $closing_no;
+	private $jobhunter_no;
+	private $payment_date;
+    /**
+     * List of wage payment total data
+     */
+	private $wagepayment_total_list = array();
+}

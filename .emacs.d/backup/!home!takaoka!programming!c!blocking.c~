@@ -1,0 +1,8 @@
+#include<stdio.h>
+
+int main(){
+  while(fgetc(stdin)==EOF){
+    printf("hoge\n");
+    sleep(0.5);
+  }
+}

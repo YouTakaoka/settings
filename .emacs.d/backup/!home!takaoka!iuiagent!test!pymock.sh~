@@ -1,0 +1,6 @@
+#!/bin/bash
+
+while true; do
+    echo "0 0 null null"
+    sleep 0.1
+done

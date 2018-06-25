@@ -1,0 +1,7 @@
+class PaymentUnit {
+	public static $instances = array();
+	private $closing_no;
+	private $jobhunter_no;
+	private $payment_data;
+	private $wagepayment_total_list;
+}

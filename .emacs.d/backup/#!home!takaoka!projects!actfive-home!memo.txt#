@@ -1,0 +1,4 @@
+〇詳細データの更新時に詳細データ更新リクエスト送信（updatePurchaseOrderDetail）（パラメータ：注文書詳細 ID ['purchase_order_detail_id'] 、納期 ['delivery_date'] 、納品場所 ['delivery_place'] 、納品場所コード ['delivery_place_code']、単価 ['unit_price']、通貨 ['currency'] ）
+
+
+        array_get($_POST, ,"");

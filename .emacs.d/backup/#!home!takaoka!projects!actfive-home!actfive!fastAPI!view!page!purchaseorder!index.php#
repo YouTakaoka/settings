@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html class="no-js" prefix="og: http://ogp.me/ns#">
+<head>
+  <title>注文書入力</title>
+  <?php include(VIEW_DIR."page/common/meta.php"); ?>
+
+  <link href="https://code.jquery.com/ui/1.12.1/themes/ui-lightness/jquery-ui.css" rel="stylesheet">
+  <script src="https://code.jquery.com/jquery-3.2.1.min.js"></script>
+  <script src="https://code.jquery.com/ui/1.12.0/jquery-ui.min.js"></script>
+
+  <script data-jsfiddle="purchaseOrderExcel" src="/assets/js/handsontable/handsontable.full.js"></script>
+  <link data-jsfiddle="purchaseOrderExcel" rel="stylesheet" media="screen" href="/assets/js/handsontable/handsontable.full.css">
+
+</head>
+
+<body>
+
+<?php include(VIEW_DIR."page/common/header.php"); ?>
+
+<div id="main">
+  <h2 class="page_title">注文書入力：</h2>
+  <div class="search_area">
+    <dl class="mb10">
+      <dt class="title">製造番号：</dt>
+      <dd><input type="text" name="" id="production_no" autocomplete="off"></dd>
+      <dt class="title ml20">仕入先コード・仕入先名：</dt>
+      <dd><input type="text" name="" id="suppliers_code" autocomplete="off"></dd>
+      <dd><input type="text" name="" id="suppliers_name" autocomplete="off"></dd>
+      <dt></dt>
+      <dd><input type="button" class="btn mr20" id="search_button" value="検索" onclick="partslist()"></dd>
+      <dt></dt>
+      <dd><input type="button" class="btn mr20" id="test_button" value="テスト" onclick="requestPurchaseOrder()"></dd>
+    </dl>
+    <dl class="mb10">
+      <dt class="title">作成日：</dt>
+      <dd><input type="text" name="" id="created_date" value="" autocomplete="off"></dd>
+    </dl>
+
+    <dl class="mb10" style="display: none;">
+      <dt class="title">自社名：</dt>
+      <dd><input type="text" name="" id="company_name" value="" autocomplete="off"></dd>
+      <dt class="title ml20">自社担当者：</dt>
+      <dd>
+        <input type="text" name="" id="company_person" value="" autocomplete="off">
+        <input type="hidden" name="" id="company_id" value="<?php _e(_vars($user,"company_id")); ?>">
+      </dd>
+    </dl>
+  </div><!-- .search_area END -->
+
+  <div class="clearfix mb20">
+    <div class="fl">
+    <dl class="clearfix">
+      <dd class="fl"><input type="text" name="" id="payment_input" placeholder="納期一括入力"></dd>
+      <dd class="fl ml20"><input type="text" name="" id="place_input" placeholder="納品場所一括入力"></dd>
+    </dl>
+    </div>
+    <div class="fr">
+         <input type="button" class="btn" value="印刷" onClick="getConditions()" >
+    </div>
+  </div>
+
+  <div id="grid">
+  </div>
+
+  <table>
+
+    <tr>
+      <td width="40">No.</td>
+      <td width="90">備考コード</td>
+      <td width="">表示</td>
+    </tr>
+
+    <tr>
+      <td>1</td>
+      <td><input type="text" id="1_code" name="code" onChange="note(1)" autocomplete="off"></td>
+      <td><input type="text" size="160" id="code_name_1" autocomplete="off"></td>
+    </tr>
+
+    <tr>
+      <td>2</td>
+      <td><input type="text" id="2_code" name="code" onChange="note(2)" autocomplete="off"></td>
+      <td><input type="text" size="160" id="code_name_2" autocomplete="off"></td>
+    </tr>
+
+    <tr>
+      <td>3</td>
+      <td><input type="text" id="3_code" name="code" onChange="note(3)" autocomplete="off"></td>
+      <td><input type="text" size="160" id="code_name_3" autocomplete="off"></td>
+    </tr>
+
+    <tr>
+      <td>4</td>
+      <td><input type="text" id="4_code" name="code" onChange="note(4)" autocomplete="off"></td>
+      <td><input type="text" size="160" id="code_name_4" autocomplete="off"></td>
+    </tr>
+
+    <tr>
+      <td>5</td>
+      <td><input type="text" id="5_code" name="code" onChange="note(5)" autocomplete="off"></td>
+      <td><input type="text" size="160" id="code_name_5" autocomplete="off"></td>
+    </tr>
+
+    <tr>
+      <td>6</td>
+      <td>自由記入</td>
+      <td><input type="text" size="160" id="remark_free" autocomplete="off"></td>
+    </tr>
+
+  </table>
+
+  </div><!-- #main END -->
+
+  <input type="text" id="cell_input" autocomplete="off">
+
+
+  <script src="assets/js/handsontable/handsontable.full.js"></script>
+  <script src="assets/js/cellinput.js?20180614"></script>
+  <script src="assets/js/delivery_place_candidate.js?20180614"></script>
+  <script src="assets/js/currency_candidate.js?20180614"></script>
+  <script src="assets/js/received_order_candidate.js?20180614"></script>
+  <script src="assets/js/supplier_candidate.js?20180614"></script>
+  <script src="assets/js/purchase_order_config.js?20180614"></script>
+  <script src="assets/js/purchaseOrder.js?20180614"></script>
+  
+</body>
+</html>

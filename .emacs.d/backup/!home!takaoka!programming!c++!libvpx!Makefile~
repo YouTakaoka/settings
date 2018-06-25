@@ -1,0 +1,5 @@
+run: contdecode
+	./contdecode video.txt
+
+contdecode: contdecode.cpp
+	g++ tools_common.c contdecode.cpp -lvpx -lm -lpthread `pkg-config --libs opencv` -o contdecode

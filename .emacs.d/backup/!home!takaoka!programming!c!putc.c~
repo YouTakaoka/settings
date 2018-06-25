@@ -1,0 +1,14 @@
+#include<stdio.h>
+
+int main(){
+  char c;
+  FILE* fp;
+
+  fopen(fp, "output.txt");
+  
+  while((c=getc(stdin)) != EOF){
+    putc(c, fp);
+  };
+
+  fclose(fp);
+}

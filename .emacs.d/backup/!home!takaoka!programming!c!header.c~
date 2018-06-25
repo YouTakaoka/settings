@@ -1,0 +1,119 @@
+#include<stdio.h>
+#include<stdlib.h>
+#include<string.h>
+
+typedef unsigned short uint16_t;
+typedef unsigned int uint32_t;
+
+typedef struct rtp_header
+{
+#if __BYTE_ORDER == __BIG_ENDIAN
+	uint16_t version:2;
+	uint16_t padding:1;
+	uint16_t extension:1;
+	uint16_t csrccount:4;
+	uint16_t markerbit:1;
+	uint16_t type:7;
+#elif __BYTE_ORDER == __LITTLE_ENDIAN
+	uint16_t csrccount:4;
+	uint16_t extension:1;
+	uint16_t padding:1;
+	uint16_t version:2;
+	uint16_t type:7;
+	uint16_t markerbit:1;
+#endif
+	uint16_t seq_number;
+	uint32_t timestamp;
+	uint32_t ssrc;
+	uint32_t csrc[16];
+} rtp_header;
+typedef rtp_header janus_rtp_header;
+
+void rtp_header_set(char* buf, janus_rtp_header* header);
+
+int main(){
+  char buf[15];
+  for(int i=0; i<15; i++){
+    buf[i] = 0;
+  }
+
+  rtp_header header;
+  header.version = 2;
+  header.padding = 0;
+  header.extension = 0;
+  header.csrccount = 0;
+  header.markerbit = 0;
+  header.type = 111; // opus codec
+  header.seq_number = 1;
+  header.timestamp = 0; // Unit is us?
+  header.ssrc = 0xaabbccdd;
+
+  // Set the header at the top of buffer
+  rtp_header_set(buf, &header);
+
+  fwrite(buf, 1, 15, stdout);
+
+  return 0;
+}
+
+void rtp_header_set(char* buf, janus_rtp_header* header){
+  /* Simple setter of RTP header. */
+  /* We assume no csrc field for simplicity. */
+  int offset = 0;
+
+  // First byte
+  char first_byte = 0x00;
+  first_byte |= header->version;  // Write version field
+
+  first_byte <<= 1;  // Shift for the padding bit
+  first_byte |= header->padding;  // Write padding field. Below, we just repeat this.
+
+  first_byte <<= 1;
+  first_byte |= header->extension;
+
+  first_byte <<= 4;
+  first_byte |= header->csrccount;
+
+  // Set first byte
+  *(buf+offset) = first_byte;
+  offset += 1;
+
+  // Second byte
+  char second_byte = 0x00;
+  second_byte |= header->markerbit;
+
+  second_byte <<= 7;
+  second_byte |= header->type;
+
+  // Set second byte
+  *(buf+offset) = second_byte;
+  offset += 1;
+
+  // Sequence number
+  char* tmp = malloc(sizeof(uint16_t));
+  memcpy(tmp, &header->seq_number, sizeof(uint16_t));
+  // Byte swap
+  memcpy(buf+offset+1, tmp, sizeof(char));
+  memcpy(buf+offset, tmp+1, sizeof(char));
+  free(tmp);
+  offset += sizeof(uint16_t);
+
+  // Timestamp
+  tmp = malloc(sizeof(uint32_t));
+  memcpy(tmp, &header->timestamp, sizeof(uint32_t));
+  // Byte swap
+  for(int i=0; i<4; i++){
+    memcpy(buf+offset+i, tmp+3-i, 1);
+  }
+  free(tmp);
+  offset += sizeof(uint32_t);
+
+  // SSRC
+  tmp = malloc(sizeof(uint32_t));
+  memcpy(tmp, &header->ssrc, sizeof(uint32_t));
+  // Byte swap
+  for(int i=0; i<4; i++){
+    memcpy(buf+offset+i, tmp+3-i, 1);
+  }
+  free(tmp);
+}

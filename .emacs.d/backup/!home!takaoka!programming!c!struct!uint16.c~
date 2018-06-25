@@ -1,0 +1,7 @@
+#include<stdio.h>
+
+int main(){
+  unsigned short a = 1;
+  fwrite(&a, sizeof(char), 2, stdout);
+  return 0;
+}

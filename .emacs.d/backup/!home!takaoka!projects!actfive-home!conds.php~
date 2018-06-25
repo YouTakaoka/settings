@@ -1,0 +1,9 @@
+<?php
+
+foreach($rows as $row)}{
+    foreach($row["conds"] as $cond){
+        if(is_kind($cond["col"])){
+            
+        }
+    }
+}

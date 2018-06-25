@@ -1,0 +1,33 @@
+#include    <stdio.h>
+#include    <sys/types.h>
+#include    <sys/stat.h>
+#include    <sys/errno.h>
+#include    <sys/fcntl.h>
+#include    <string.h>
+#include    <stdlib.h>
+
+void main(int argc, char *argv[])
+{
+  char  buf[256] = "o\n";
+  char *s;
+  FILE*   fd;
+
+  printf("%s\n", argv[1]);
+  
+    if((fd=fopen(argv[1],"w"))==NULL){
+        perror("open");
+        exit(-1);
+    }
+
+    printf("fifo_send: Opened!\n");
+
+    for(;;){
+      // printf("fifo_send: hello!\n");
+      fwrite(buf,sizeof(char), strlen(buf), fd);
+      fflush(fd);
+      sleep(1);
+    }
+
+    fclose(fd);
+}
+

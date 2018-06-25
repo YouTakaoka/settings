@@ -1,0 +1,12 @@
+#include<stdio.h>
+
+static int* sv;
+
+int main(){
+  
+}
+
+void func(){
+  int a = 5;
+  sv = &a;
+}

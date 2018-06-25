@@ -1,0 +1,83 @@
+package analysis;
+import java.util.ArrayList;
+
+import core.SourceClass;
+import core.SpeechDataClass;
+import core.StateClass;
+
+public class SpeechAnalysis extends Thread{
+	private boolean runFlag;            //runを制御するフラッグ
+
+	public SpeechAnalysis(){
+		this.runFlag = true;
+
+		System.out.println("SpeechAnalysis起動");
+	}
+
+	public void end(){
+		this.runFlag = false;
+	}
+
+	public void run(){
+		String message = "null";      // "Start", "Finish", "null"のいずれか
+		String preMessage = "null";  // ひとつ前のメッセージ
+		String fileName = "null";    // ファイル名
+		int pitch = 0;               // ピッチ
+		double intensity = 0;       // インテンシティ
+
+		ArrayList<Integer> pList = new ArrayList<Integer>();
+		ArrayList<Double> iList = new ArrayList<Double>();
+
+		long AST = 0;                   // ユーザの発話開始時刻
+		long AET = 0;                   // ユーザの発話終了時刻
+
+		try{
+			preMessage = SourceClass.message;
+
+			while(runFlag){
+				Thread.sleep(10);
+
+				pitch = SourceClass.pitch;
+				intensity = SourceClass.intensity;
+				message = SourceClass.message;
+				fileName = SourceClass.fileName;
+
+
+				//発話開始時
+				if(message.equals("Start")){
+					if(!message.equals(preMessage)){
+						System.out.println("ユーザ発話開始");
+						StateClass.isSpeak = true;
+						AST = System.currentTimeMillis();
+					}
+				}
+				//発話区間中
+				if(StateClass.isSpeak){
+					pList.add(pitch);
+					iList.add(intensity);
+				}
+				//発話終了時
+				if(StateClass.isSpeak && message.equals("Finish")){
+					if(!message.equals(preMessage)){
+						System.out.println("ユーザ発話終了");
+						StateClass.isSpeak = false;
+						AET = System.currentTimeMillis() - 1000;  //-1000しているのは、ユーザの発話が実際には1秒前に終了しているため。
+
+						//1発話分のデータをひとまとめにして保存。
+						SpeechDataClass speechData = new SpeechDataClass(fileName, pList, iList, (AET-AST)/1000.0);
+						if(StateClass.QandA != null){
+							StateClass.QandA.addSpeech(speechData);
+						}
+
+						pList.clear();
+						iList.clear();
+					}
+				}
+
+				preMessage = message;
+			}
+		}catch(Exception e){
+			e.printStackTrace();
+		}
+	}
+}

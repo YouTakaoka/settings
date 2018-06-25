@@ -1,0 +1,11 @@
+#include<stdio.h>
+
+int main(int argc, char* argv){
+  // Validation of command line arguments
+  if(argc != 3){
+    printf("div - divide file at the specified position(byte)\n");
+    printf("usage: div file position\n");
+    exit(1);
+  }
+  return 0;
+}

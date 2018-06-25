@@ -1,0 +1,31 @@
+#include    <stdio.h>
+#include    <sys/types.h>
+#include    <sys/stat.h>
+#include    <sys/errno.h>
+#include    <sys/fcntl.h>
+#include    <stdlib.h>
+
+void main()
+{
+  FILE* fd;
+  int len;
+  char  buf[256];
+
+    if((fd=fopen("/tmp/FifoTest","r"))==NULL){
+        perror("open");
+        exit(-1);
+    }
+
+    while(1){
+      len=fread(buf, sizeof(char), sizeof(buf)-1, fd);
+        if(len==0){
+            break;
+        }
+        buf[len]='\0';
+        fputs(buf,stdout);
+    }
+    fclose(fd);
+
+    system("rm -f /tmp/FifoTest");
+}
+
