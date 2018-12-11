@@ -16,5 +16,10 @@ if [ -n "$BASH_VERSION" ]; then
     fi
 fi
 
+MYUNIX="/usr/share/keymaps/myunix.kmap"
+if [ -f $MYUNIX ]; then
+    sudo loadkeys $MYUNIX
+fi
+
 # set PATH so it includes user's private bin directories
 PATH="$HOME/bin:$HOME/.local/bin:$PATH"
