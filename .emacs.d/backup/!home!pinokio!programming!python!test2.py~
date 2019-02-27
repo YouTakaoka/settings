@@ -1,0 +1,2 @@
+str = "12345"
+li = list(map(int, str))

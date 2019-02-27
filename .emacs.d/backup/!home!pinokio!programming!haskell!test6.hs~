@@ -1,0 +1,16 @@
+-- init i = 0 , k = 0 , b = 0 , f = False
+-- b = left B
+-- f: flag just after trans -> true
+srch li i b f
+     | i == (n-1) = 0
+     | ((li !! i) == 'B' || f)  && (li !! (i+1)) == 'W' = (b+1) + srch li (i+1) b True
+     | (li !! i) == 'B' || f          = srch li (i+1) (b+1) False
+     | otherwise                      = srch li (i+1) b False
+     where
+        n = length li
+
+
+main = do
+     li <- getLine
+     print $ srch li 0 0 False
+     

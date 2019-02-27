@@ -1,0 +1,5 @@
+main = do
+     str = "1234567890"
+     li = map (\c -> read [c] :: Int) str
+     print li
+     

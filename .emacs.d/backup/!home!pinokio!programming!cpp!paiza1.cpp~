@@ -1,0 +1,45 @@
+#include<cstdio>
+#include<cstring>
+
+/*
+N
+c_f c_b
+a
+
+・2 ≦ N ≦ 7
+・0 ≦ c_f, c_b ≦ 100
+*/
+
+int main(){
+  int n, m, k; //m:candidate n:people
+  int num[101];
+  scanf("%d %d %d", &m, &n, &k);
+  num[0] = n;
+  for(int i=1; i <= m; i++)
+    num[i] = 0;
+
+  
+  for(int i=0; i < k; i++){
+    int a;
+    scanf("%d", &a);
+
+    for(int j=0; j <= m; j++){
+      if(a == j) continue;
+      if(num[j] > 0){
+        num[a]++;
+        num[j]--;
+      }
+    }
+  }
+
+  int max = 0;
+  for(int i=1; i <= m; i++){
+    //printf("num[%d] = %d\n", i, num[i]);
+    if(num[i] > max)
+      max = num[i];
+  }
+
+  for(int i=1; i <= m; i++)
+    if(num[i] == max) printf("%d\n", i);
+}
+

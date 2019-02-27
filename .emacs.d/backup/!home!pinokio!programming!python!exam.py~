@@ -1,0 +1,108 @@
+import sys
+import csv
+from decimal import Decimal, ROUND_HALF_UP, ROUND_HALF_EVEN
+
+#dropouts
+#First argument: CSV file path
+def dropouts(csv_file):
+    #Open file
+    f = open(csv_file, 'r')
+
+    #Get reader
+    reader = csv.reader(f)
+
+    #Skip header line
+    header = next(reader)
+
+    #Print header line
+    print("ID")
+    
+    for row in reader:
+        #Break when it reaches to the empty line
+        if row == []:
+            break
+        
+        id = row[0]
+
+        #Score list
+        li = map(int, row[1:7])
+
+        #Count the number of dropped subjects
+        s = sum(map(lambda x: 1 if x < 50 else 0, li))
+
+        #If s is greater than 2, print the ID
+        if s > 1:
+            print(id)
+
+    #Close file
+    f.close()
+
+
+#top-vs-bottom
+#First argument: CSV file path
+def tvb(csv_file):
+    #Open file
+    f = open(csv_file, 'r')
+    
+    #Get reader
+    reader = csv.reader(f)
+    
+    #Skip header line
+    header = next(reader)
+    
+    #Print header line
+    print("ID,Mean")
+    
+    #Initialize variables
+    top = 0.0
+    bottom = 100.0
+    top_ids = []
+    bottom_ids = []
+    
+    for row in reader:
+        #Break when it reaches to the empty line
+        if row == []:
+            break
+        
+        id = row[0]
+        li = map(int, row[1:7])
+        mean = sum(li)/6
+        r_mean = Decimal(str(mean)).quantize(Decimal('0.01'), rounding=ROUND_HALF_UP)
+
+        if r_mean >= top:
+            if r_mean > top:
+                top_ids = [id]
+            else:
+                top_ids.append(id)
+            top = r_mean
+
+        if r_mean <= bottom:
+            if r_mean < bottom:
+                bottom_ids = [id]
+            else:
+                bottom_ids.append(id)
+            bottom = r_mean
+
+    for id in bottom_ids:
+        print(id + "," + str(float(bottom)))
+        
+    for id in top_ids:
+        print(id + "," + str(float(top)))
+
+    f.close()
+        
+def main(argv):
+    # このコードは引数と標準出力を用いたサンプルコードです。
+    # このコードは好きなように編集・削除してもらって構いません。
+    # ---
+    # This is a sample code to use arguments and outputs.
+    # Edit and remove this code as you like.
+
+    if argv[0] == "dropouts":
+        dropouts(argv[1])
+    else:
+        tvb(argv[1])
+
+if __name__ == '__main__':
+    main(sys.argv[1:])
+

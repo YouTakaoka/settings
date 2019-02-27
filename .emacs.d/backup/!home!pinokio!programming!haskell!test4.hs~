@@ -1,0 +1,23 @@
+import Debug.Trace
+import Data.List
+import Control.Monad
+
+-- n m
+-- k1 k2 ... kn
+
+toint s = read s :: Int
+
+binary ki a left right
+       | l == 1 && ki !! left /= a = False
+       | ki !! half == a = True
+       | ki !! half < a = binary ki a half right
+       | otherwise = trace "2" binary ki a left half
+       where
+        l = right - left + 1
+        half = left + div l 2
+        
+main = do
+     [n, m] <- map toint . words <$> getLine
+     ki <- sort . map toint . words <$> getLine
+     print $ binary ki 2 0 ((length ki) - 1)
+     

@@ -1,0 +1,54 @@
+#include<iostream>
+#include<cstdio>
+#include<algorithm>
+#include<vector>
+
+using namespace std;
+
+/*
+n p
+
+*/
+typedef long long int ll;
+ll n, p;
+
+ll pow(ll x, ll n){
+  if(n == 0) return 1;
+  else return x * pow(x, n - 1);
+}
+
+void Eratosthenes(){
+	for(int i = 0; i < N; i++){
+		arr[i] = 1;
+	}
+	for(int i = 2; i < sqrt(N); i++){
+		if(arr[i]){
+			for(int j = 0; i * (j + 2) < N; j++){
+				arr[i *(j + 2)] = 0;
+			}
+		}
+	}
+
+	for(int i = 2; i < N; i++){
+		if(arr[i]){
+			//cout << i << endl;
+		}
+	}
+}
+int main(){
+  cin >> n;
+  cin >> p;
+
+  vector<bool> f(p, true);
+  int gcd = 1;
+  for(int i = 2; i <= p; i++){
+    if(p % pow(i, n) == 0){
+      gcd *= i;
+      p /= pow(i, n);
+    }
+  }
+  cout << gcd << endl;
+
+  return 0;
+}
+

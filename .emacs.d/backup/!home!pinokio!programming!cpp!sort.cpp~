@@ -1,0 +1,39 @@
+#include<cstdio>
+#include<bits/stdc++.h>
+#define REP(i, n) for(int i = 0; (i) < (n); (i)++)
+using namespace std;
+
+template<class T>
+auto comp_idx(T* ptr){
+  return [ptr](int l_idx, int r_idx){
+    return ptr[l_idx] < ptr[r_idx];
+  };
+}
+
+int main(){
+  char str[] = "bcad";
+  int l = strlen(str);
+  int idx[l];
+  REP(i,l){
+    idx[i] = i;
+  }
+  sort(idx, idx+l, comp_idx(str));
+
+  REP(i,l){
+    cout << i;
+  }
+  cout << endl;
+  cout << str << endl;
+
+  REP(i,l){
+    cout << idx[i];
+  }
+  cout << endl;
+  
+  REP(i,l){
+    cout << str[idx[i]];
+  }
+  cout << endl;
+
+  return 0;
+}

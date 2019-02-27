@@ -1,0 +1,9 @@
+-- a: 500
+-- b: 100
+-- c: 50
+-- x
+
+main = do
+     n  <- str2int <$> getLine
+     li <- map str2int . words <$> getLine
+     print $ divCnt li
