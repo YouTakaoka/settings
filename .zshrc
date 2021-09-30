@@ -42,3 +42,8 @@ fi
 
 # anaconda
 export PATH=/home/yu/anaconda3/bin:$PATH
+
+# texlive
+MANPATH="$MANPATH:usr/local/texlive/2021/texmf-dist/doc/man"
+INFOPATH="$INFOPATH:/usr/local/texlive/2021/texmf-dist/doc/info"
+PATH="$PATH:/usr/local/texlive/2021/bin/x86_64-linux"
