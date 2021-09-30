@@ -18,6 +18,26 @@
 (add-to-list 'load-path "~/.emacs.d/bin")
 
 ;;;;;;;;;;;;;;;;;;;;;;; packages ;;;;;;;;;;;;;;;;;;;;;;;
+;; use-package
+(el-get-bundle use-package)
+
+;; point-undo
+(require 'point-undo)
+(global-set-key [f7] 'point-undo)
+(global-set-key [M-f7] 'point-redo)
+
+;; lsp-mode
+(el-get-bundle lsp-mode)
+
+;; lsp-ui
+(el-get-bundle lsp-ui)
+
+;; lsp-haskell
+(add-hook 'haskell-mode-hook #'lsp)
+(add-hook 'haskell-literate-mode-hook #'lsp)
+(setq lsp-haskell-server-path "/home/yu/.local/bin/haskell-language-server")
+(setq lsp-haskell-process-path-hie "haskell-language-server-wrapper")
+
 ;; auto-complete
 (el-get-bundle auto-complete)
 
@@ -41,6 +61,16 @@
 
 ;; php-mode
 (el-get-bundle php-mode)
+
+;; haskell-mode
+(el-get-bundle haskell-mode)
+(add-to-list 'auto-mode-alist '("\\.hs$" . haskell-mode))
+(add-to-list 'auto-mode-alist '("\\.lhs$" . literate-haskell-mode))
+(add-to-list 'auto-mode-alist '("\\.cabal\\'" . haskell-cabal-mode))
+;#!/usr/bin/env runghc 用
+(add-to-list 'interpreter-mode-alist '("runghc" . haskell-mode))
+;#!/usr/bin/env runhaskell 用
+(add-to-list 'interpreter-mode-alist '("runhaskell" . haskell-mode))
 
 ;; quickrun
 (el-get-bundle quickrun)
