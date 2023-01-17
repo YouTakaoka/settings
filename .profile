@@ -34,7 +34,9 @@ export LC_ALL=C.UTF-8
 export LANGUAGE=C.UTF-8
 
 # Cargo environment variables
-. "$HOME/.cargo/env"
+if [ "$HOME/.cargo/env" ]; then
+    . "$HOME/.cargo/env"
+fi
 
 ### Sound settings
 # I do not prefer running pulseaudio as systemd service
