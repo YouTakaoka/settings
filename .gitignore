@@ -1,10 +1,16 @@
-*
+/*
 !/.gitignore
 !/.profile
 !/.aliases
 !/.zshrc
 !/.config/
+/.config/*
+!/.config/autostart/
+!/.config/pulse/
+!/.config/jack/
 !/.tmux.conf
 !/.latexmkrc
+!/.emacs.d/
+/.emacs.d/*
 !/.emacs.d/init.el
 !/.emacs.d/inits/
