@@ -1,4 +1,0 @@
-main = do
-     a <- getLine
-     putStrLn $ "Best in " ++ a
-     

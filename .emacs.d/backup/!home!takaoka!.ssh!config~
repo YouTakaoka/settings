@@ -1,5 +1,0 @@
-Host actfive.dev
-  HostName 210.152.12.46
-  User partslist.develop
-  Port 10022
-  IdentityFile ~/.ssh/actfive.dev

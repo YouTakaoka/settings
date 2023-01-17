@@ -1,7 +1,0 @@
-#!/bin/bash
-
-ls | while read fname; do
-    iconv -f SJIS -t UTF-8 $fname > temp
-    cat temp > $fname
-done
-

@@ -1,4 +1,0 @@
-#!/bin/bash
-
-gcc tools_common.c vp8decode.c -lvpx -lm -lpthread
-

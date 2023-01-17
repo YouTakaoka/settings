@@ -1,2 +1,0 @@
-mb_convert_variables('UTF-8','SJIS-win',$str_array);
-

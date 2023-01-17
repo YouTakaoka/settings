@@ -1,7 +1,0 @@
-#!/bin/bash
-
-FIFO_NAME="/tmp/testfifo"
-mkfifo $FIFO_NAME
-cd ./Java
-java main.SystemStart $FIFO_NAME $FIFO_NAME
-

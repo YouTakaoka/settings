@@ -1,5 +1,0 @@
-/**
- * Read from file pointer fp into buffer buf until string str appears
- * @ret length of the string (0 if the string not found or reached to max)
- */
-int readUntil(FILE* fp, char* buf, char str[], int max);

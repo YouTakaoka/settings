@@ -1,2 +1,0 @@
-;; reload buffer
-(global-set-key (kbd "<f5>") 'revert-buffer-no-confirm)

@@ -1,9 +1,0 @@
-#include<stdio.h>
-
-int main(){
-  while(1){
-    char buf[126];
-    scanf(buf, "%s");
-    printf("[Input]%s\n",buf);
-  }
-}

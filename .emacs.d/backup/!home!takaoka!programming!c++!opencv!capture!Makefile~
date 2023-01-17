@@ -1,2 +1,0 @@
-capture: capture.cpp
-	g++ capture.cpp -o capture `pkg-config opencv --libs`

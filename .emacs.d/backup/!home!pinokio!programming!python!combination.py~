@@ -1,6 +1,0 @@
-imoport math as m
-
-def comb(n,r):
-    return m.factorial(n)/(m.factorial(n-r)*m.factorial(r))
-
-

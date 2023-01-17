@@ -1,4 +1,0 @@
-    function month_summary($sheets, $start_date, $rowOffset, $title)
-    {
-        
-    }

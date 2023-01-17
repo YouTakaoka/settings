@@ -1,6 +1,0 @@
-#!/bin/bash
-
-convmv --list | while read CODE; do
-    convmv -f $CODE -t utf8 --nosmart
-done
-

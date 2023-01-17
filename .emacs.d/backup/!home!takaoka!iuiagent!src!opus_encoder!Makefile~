@@ -1,2 +1,0 @@
-encode: encode.c
-	gcc encode.c -o encode -lopus

@@ -1,8 +1,0 @@
-#include<stdio.h>
-
-int main(){
-  FILE* fp = popen("./process.sh", "w");
-  sleep(3);
-  fprintf(fp, "end\n");
-  pclose(fp);
-}
