@@ -16,9 +16,6 @@ if [ -n "$BASH_VERSION" ]; then
     fi
 fi
 
-# Set keymap to US
-sudo loadkeys us
-
 # Set PATH so it includes user's private bin directories
 PATH="$HOME/bin:$HOME/.local/bin:$PATH"
 
@@ -40,9 +37,11 @@ fi
 
 ### Sound settings
 # I do not prefer running pulseaudio as systemd service
+systemctl --user disable pulseaudio.socket
+systemctl --user disable pulseaudio.service
 systemctl --user stop pulseaudio.socket
 systemctl --user stop pulseaudio.service
-pulseaudio -D
+pulseaudio --start
 
 # On the purpose of supressing following error:
 # git: Gtk-WARNING cannot open display

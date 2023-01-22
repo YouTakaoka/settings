@@ -7,7 +7,6 @@
 /.config/*
 !/.config/autostart/
 !/.config/pulse/
-!/.config/jack/
 !/.tmux.conf
 !/.latexmkrc
 !/.emacs.d/
