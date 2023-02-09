@@ -31,7 +31,7 @@ export LC_ALL=C.UTF-8
 export LANGUAGE=C.UTF-8
 
 # Cargo environment variables
-if [ "$HOME/.cargo/env" ]; then
+if [ -f "$HOME/.cargo/env" ]; then
     . "$HOME/.cargo/env"
 fi
 
@@ -55,6 +55,9 @@ fi
 
 # anaconda
 export PATH=/home/yu/anaconda3/bin:$PATH
+
+# Python path
+export PYTHONPATH="$PYTHONPATH:$HOME/pymodules"
 
 # texlive
 MANPATH="$MANPATH:usr/local/texlive/2021/texmf-dist/doc/man"
