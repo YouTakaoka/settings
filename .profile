@@ -54,7 +54,7 @@ if command -v pyenv 1>/dev/null 2>&1; then
 fi
 
 # anaconda
-export PATH=/home/yu/anaconda3/bin:$PATH
+export PATH="$HOME/anaconda3/bin:$PATH"
 
 # Python path
 export PYTHONPATH="$PYTHONPATH:$HOME/pymodules"
@@ -63,3 +63,6 @@ export PYTHONPATH="$PYTHONPATH:$HOME/pymodules"
 MANPATH="$MANPATH:usr/local/texlive/2021/texmf-dist/doc/man"
 INFOPATH="$INFOPATH:/usr/local/texlive/2021/texmf-dist/doc/info"
 PATH="$PATH:/usr/local/texlive/2021/bin/x86_64-linux"
+
+# CUE path
+export PATH="$PATH:$HOME/go/bin"
