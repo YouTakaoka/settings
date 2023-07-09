@@ -9,7 +9,7 @@ $bibtex = 'pbibtex %O %S';
 $biber = 'biber --bblencoding=utf8 -u -U --output_safechars %O %S';
 
 # index
-$makeindex = 'mendex %O -o %D -d %B.dic -g %S';
+$makeindex = 'mendex %O -o %D -d %B.dic -g %S -s %B';
 
 # DVI / PDF
 $dvipdf = 'dvipdfmx %O -o %D %S';
