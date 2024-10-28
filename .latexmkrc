@@ -1,32 +1,32 @@
 #!/usr/bin/env perl
 
-# LaTeX
-$latex = 'uplatex -synctex=1 -halt-on-error -file-line-error %O %S';
-$max_repeat = 5;
+use v5.10;
+use experimental qw(smartmatch);
 
-# BibTeX
-$bibtex = 'pbibtex %O %S';
-$biber = 'biber --bblencoding=utf8 -u -U --output_safechars %O %S';
+# tex options
+$lualatex     = 'lualatex -shell-escape -synctex=1 -interaction=nonstopmode';
+$pdflualatex  = $lualatex;
+$biber        = 'biber %O --bblencoding=utf8 -u -U --output_safechars %B';
+$bibtex       = 'bibtex %O %B';
+$makeindex    = 'mendex %O -o %D %S';
+$max_repeat   = 5;
+$pdf_mode     = 4;
 
-# index
-$makeindex = 'mendex %O -o %D -d %B.dic -g %S -s %B';
-
-# DVI / PDF
-$dvipdf = 'dvipdfmx %O -o %D %S';
-$pdf_mode = 3;
-
-# preview
 $pvc_view_file_via_temporary = 0;
-if ($^O eq 'linux') {
-    $dvi_previewer = "xdg-open %S";
-    $pdf_previewer = "xdg-open %S";
-} elsif ($^O eq 'darwin') {
-    $dvi_previewer = "open %S";
-    $pdf_previewer = "open %S";
-} else {
-    $dvi_previewer = "start %S";
-    $pdf_previewer = "start %S";
+
+# default preview
+given ($^O) {
+    when (/MSWin32/) {
+        $pdf_previewer = 'start';
+    }
+    when (/darwin/) {
+        $pdf_previewer = 'open';
+    }
+    default {
+        $pdf_previewer = 'evince';
+    }
 }
 
-# clean up
-$clean_full_ext = "%R.synctex.gz"
+# local config
+$local_latexmkrc_path = './.latexmkrc.local';
+require $local_latexmkrc_path if -e $local_latexmkrc_path;
